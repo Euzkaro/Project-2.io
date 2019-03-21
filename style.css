@@ -1,0 +1,69 @@
+.img-theme{
+    width: 35%;
+    height: auto;
+    max-height: 250px !important;
+  }
+
+.container-fluid {
+    border-bottom:10px solid rgb(78, 42, 132);
+}
+
+#myNavbar a:hover {
+    background-color: rgb(131, 110, 170);
+    color: white;
+    transition-duration: 0.4s;
+
+  }
+
+body {
+    min-height: 100%;
+    min-height: 100%;
+    
+}
+
+h1{
+    color: #4E2A84;
+    font-family: Arial, Helvetica, sans-serif; 
+    font-weight: bold;
+}
+
+h2{
+    color: #4C4A4F;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+h3{
+    color: #58565C;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+hr{
+    border-top: 2px solid rgba(128, 128, 128, 0.685);
+}
+p{
+    color: #4C4A4F;  
+}
+
+.pager a{
+    color:#4C4A4F;
+    transition-duration: 0.3s;
+    color: #4E2A84;
+
+}
+
+footer {
+    background-color: #777;
+    color: rgb(230, 230, 230);
+    border: none;
+    position:fixed; 
+    left:0px; 
+    bottom:0px; 
+    width:100%;
+    margin: 0px;
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 13px;
+    font-family: Arial, Helvetica, sans-serif;
+    border-top: 10px solid rgb(78, 42, 132);
+}
