@@ -4,6 +4,8 @@
     max-height: 250px !important;
   }
 
+
+
 .container-fluid {
     border-bottom:10px solid rgb(78, 42, 132);
 }
@@ -45,6 +47,14 @@ p{
     color: #4C4A4F;  
 }
 
+#main-map {
+    height: 500px;
+    width: 800px;
+    position: static;
+    padding: 70px;
+    orientation: auto;
+}
+
 .pager a{
     color:#4C4A4F;
     transition-duration: 0.3s;
@@ -56,7 +66,7 @@ footer {
     background-color: #777;
     color: rgb(230, 230, 230);
     border: none;
-    position:fixed; 
+    position:relative; 
     left:0px; 
     bottom:0px; 
     width:100%;
