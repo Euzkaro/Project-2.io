@@ -19,6 +19,8 @@ app = Flask(__name__)
 #################################################
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.expression import func
+
 #Probably don't need these from SQLAlchemy: asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
 
 db_path_flask_app = "sqlite:///../data/twitter_trends.db"
@@ -38,12 +40,14 @@ from .db_management import (
     update_db_locations_table, update_db_trends_table
     )
 
+#********************************************************************************
 # Default route - display the main page
 # NOTE: Flask expects rendered templates to be in the ./templates folder
 @app.route("/")
 def home():
     return render_template("index.html")
 
+#********************************************************************************
 # Return information relevant to update
 # of the 'locations' and 'trends' database tables
 @app.route("/update")
@@ -85,7 +89,7 @@ def update_info():
 
     return jsonify(api_info)
 
-
+#********************************************************************************
 # Update the 'locations' table via API calls
 # Note: Typically requires less than 1 minute
 @app.route("/update/locations")
@@ -99,8 +103,10 @@ def update_locations_table():
 
     return jsonify(api_info)
 
-# Update the 'locations' table via API calls
-# Note: Typically requires less than 1 minute
+#********************************************************************************
+# Update the 'trends' table via API calls
+# Note: Typically requires less than 1 minute if no rate limits
+#       But require up to 15 minutes if rate limits are in effect
 @app.route("/update/trends")
 def update_trends_table():
     # Update the trends table through API calls
@@ -113,10 +119,12 @@ def update_trends_table():
     return jsonify(api_info)
 
 
+#********************************************************************************
 # Return a list of all locations with Twitter Top Trend info
 @app.route("/locations")
 def get_all_locations():
     results = db.session.query(Location).all()
+
     loc_list = []
     for r in results:
         loc_info = {
@@ -144,15 +152,50 @@ def get_all_locations():
             'twitter_parentid': r.twitter_parentid
         }
 
+        # loc_info = {
+        #     'woeid': r.Location.woeid,
+        #     'latitude': r.Location.latitude,
+        #     'longitude': r.Location.longitude,
+        #     'name_full': r.Location.name_full,
+        #     'name_only': r.Location.name_only,
+        #     'name_woe': r.Location.name_woe,
+        #     'county_name': r.Location.county_name,
+        #     'county_name_only': r.Location.county_name_only,
+        #     'county_woeid': r.Location.county_woeid,
+        #     'state_name': r.Location.state_name,
+        #     'state_name_only': r.Location.state_name_only,
+        #     'state_woeid': r.Location.state_woeid,
+        #     'country_name': r.Location.country_name,
+        #     'country_name_only': r.Location.country_name_only,
+        #     'country_woeid': r.Location.country_woeid,
+        #     'place_type': r.Location.place_type,
+        #     'timezone': r.Location.timezone,
+        #     'twitter_type': r.Location.twitter_type,
+        #     'twitter_country': r.Location.twitter_country,
+        #     'tritter_country_code': r.Location.tritter_country_code,
+        #     'twitter_parentid': r.Location.twitter_parentid,
+
+        #     'twitter_as_of': r.Trend.twitter_as_of,
+        #     'twitter_created_at': r.Trend.twitter_created_at,
+        #     'twitter_name': r.Trend.twitter_name,
+        #     'twitter_tweet_name': r.Trend.twitter_tweet_name,
+        #     'twitter_tweet_promoted_content': r.Trend.twitter_tweet_promoted_content,
+        #     'twitter_tweet_query': r.Trend.twitter_tweet_query,
+        #     'twitter_tweet_url': r.Trend.twitter_tweet_url,
+        #     'twitter_tweet_volume': r.Trend.twitter_tweet_volume
+        # }
+
         loc_list.append(loc_info)
 
     return jsonify(loc_list)
 
-# Return a list of all locations with Twitter Top Trend info
+#********************************************************************************
+# Return a list of one location  with Twitter Top Trend info with teh specified WOEID
 @app.route("/locations/<a_woeid>")
 def get_info_for_location(a_woeid):
-    results = db.session.query(Location).filter(Location.woeid == a_woeid).all()
-
+    results = db.session.query(Location) \
+                        .filter(Location.woeid == a_woeid) \
+                        .all()
     loc_list = []
     for r in results:
         loc_info = {
@@ -184,6 +227,58 @@ def get_info_for_location(a_woeid):
 
     return jsonify(loc_list)
 
+
+#********************************************************************************
+# Return a list of all locations that have the specified tweet in its top trends
+# and then sort the results by tweet volume in descending order
+@app.route("/locations/tweet/<a_tweet>")
+def get_locations_with_tweet(a_tweet):
+    results = db.session.query(Trend, Location).join(Location) \
+                        .filter(Trend.twitter_tweet_name == a_tweet ) \
+                        .order_by( Trend.twitter_tweet_volume.desc() ).all()
+
+    loc_list = []
+    for r in results:
+        #print(f"Trend Information for {r.Trend.woeid} {r.Location.name_full}: {r.Trend.twitter_tweet_name} {r.Trend.twitter_tweet_volume}")
+        loc_info = {
+            'woeid': r.Location.woeid,
+            'latitude': r.Location.latitude,
+            'longitude': r.Location.longitude,
+            'name_full': r.Location.name_full,
+            'name_only': r.Location.name_only,
+            'name_woe': r.Location.name_woe,
+            'county_name': r.Location.county_name,
+            'county_name_only': r.Location.county_name_only,
+            'county_woeid': r.Location.county_woeid,
+            'state_name': r.Location.state_name,
+            'state_name_only': r.Location.state_name_only,
+            'state_woeid': r.Location.state_woeid,
+            'country_name': r.Location.country_name,
+            'country_name_only': r.Location.country_name_only,
+            'country_woeid': r.Location.country_woeid,
+            'place_type': r.Location.place_type,
+            'timezone': r.Location.timezone,
+            'twitter_type': r.Location.twitter_type,
+            'twitter_country': r.Location.twitter_country,
+            'tritter_country_code': r.Location.tritter_country_code,
+            'twitter_parentid': r.Location.twitter_parentid,
+
+            'twitter_as_of': r.Trend.twitter_as_of,
+            'twitter_created_at': r.Trend.twitter_created_at,
+            'twitter_name': r.Trend.twitter_name,
+            'twitter_tweet_name': r.Trend.twitter_tweet_name,
+            'twitter_tweet_promoted_content': r.Trend.twitter_tweet_promoted_content,
+            'twitter_tweet_query': r.Trend.twitter_tweet_query,
+            'twitter_tweet_url': r.Trend.twitter_tweet_url,
+            'twitter_tweet_volume': r.Trend.twitter_tweet_volume
+        }
+
+        loc_list.append(loc_info)
+
+    return jsonify(loc_list)
+
+
+#********************************************************************************
 # Return the full list of all trends with Twitter Top Trend info
 @app.route("/trends")
 def get_all_trends():
@@ -207,6 +302,7 @@ def get_all_trends():
 
     return jsonify(trend_list)
 
+#********************************************************************************
 # Return the full list of Twitter Top Trends for a specific location
 @app.route("/trends/<a_woeid>")
 def get_trends_for_location(a_woeid):
@@ -230,10 +326,14 @@ def get_trends_for_location(a_woeid):
 
     return jsonify(trend_list)
 
+#********************************************************************************
 # Return the top 5 list of Twitter Top Trends for a specific location
 @app.route("/trends/top/<a_woeid>")
 def get_top_trends_for_location(a_woeid):
-    results = db.session.query(Trend).filter(Trend.woeid == a_woeid).order_by(Trend.twitter_tweet_volume.desc()).limit(5).all()
+    results = db.session.query(Trend) \
+                        .filter(Trend.woeid == a_woeid) \
+                        .order_by(Trend.twitter_tweet_volume.desc()) \
+                        .limit(5).all()
 
     trend_list = []
     for r in results:
@@ -256,3 +356,4 @@ def get_top_trends_for_location(a_woeid):
 
 if __name__ == "__main__":
     app.run()
+
