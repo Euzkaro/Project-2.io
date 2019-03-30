@@ -1,10 +1,62 @@
+#map,
+body,
+html {
+  height: 400px;
+  Margin-left: 10px;
+}
+
 .img-theme{
-    width: 35%;
+    width: 30%;
     height: auto;
-    max-height: 250px !important;
+    object-fit: cover;
+    max-height: 80px !important;
   }
 
+.fixed_header{
+    width: 470px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
 
+.fixed_header tbody{
+  display:block;
+  width: 100%;
+  overflow: auto;
+  height: 200px;
+}
+
+.fixed_header thead tr {
+  display: block;
+}
+
+.fixed_header thead {
+  background: black;
+  color:#fff;
+}
+
+.fixed_header th, .fixed_header td {
+  padding: 5px;
+  text-align: left;
+  width: 470px;
+}
+
+.fixed_header th, .fixed_header td {
+    padding: 5px;
+    text-align: left;
+    width: 470px;
+  }
+
+.card-title {
+    background: white ;
+    font-size: 26px ;
+    color: black;
+}
+
+.card-title {
+    background: white ;
+    font-size: 26px ;
+    color: black;
+}
 
 .container-fluid {
     border-bottom:10px solid rgb(78, 42, 132);
