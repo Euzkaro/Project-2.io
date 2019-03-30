@@ -9,25 +9,6 @@
 import os
 from flask import Flask, render_template, jsonify, request, redirect
 
-# API Keys
-# Twitter API
-# key_twitter_tweetquestor_consumer_api_key
-# key_twitter_tweetquestor_consumer_api_secret_key
-# key_twitter_tweetquestor_access_token
-# key_twitter_tweetquestor_access_secret_token
-
-# Flickr API
-# key_flicker_infoquestor_key
-# key_flicker_infoquestor_secret
-from api_config import *
-
-# Setup Tweepy API Authentication to access Twitter
-import tweepy
-
-auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
-auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
-api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
-
 #################################################
 # Flask Setup
 #################################################
@@ -48,11 +29,13 @@ db = SQLAlchemy(app)
 
 # Import the schema for the Location and Trend tables needed for
 # 'twitter_trends.sqlite' database tables 'locations' and 'trends'
-from .models import Location, Trend
+from .models import (Location, Trend)
 
 # Import database management functions needed# to update the
 # 'twitter_trends.sqlite' database tables 'locations' and 'trends'
-from .db_management import api_calls_remaining, api_time_before_reset, try_db_access
+from .db_management import (
+    api_calls_remaining, api_time_before_reset
+    )
 
 # Default route - display the main page
 # NOTE: Flask expects rendered templates to be in the ./templates folder
@@ -65,16 +48,16 @@ def home():
 @app.route("/update")
 def update_info():
     # Obtain remaining number of API calls for trends/place
-    api_calls_remaining_place = api_calls_remaining( api, "place")
+    api_calls_remaining_place = api_calls_remaining( "place")
 
     # Obtain time before rate limits are reset for trends/available
-    api_time_before_reset_place = api_time_before_reset( api, "available")
+    api_time_before_reset_place = api_time_before_reset( "available")
 
     # Obtain remaining number of API calls for trends/place
-    api_calls_remaining_available = api_calls_remaining( api, "place")
+    api_calls_remaining_available = api_calls_remaining( "place")
 
     # Obtain time before rate limits are reset for trends/available
-    api_time_before_reset_available = api_time_before_reset( api, "available")
+    api_time_before_reset_available = api_time_before_reset( "available")
 
     # Count the number of locations in the 'locations' table
     n_locations = db.session.query(Location).count()

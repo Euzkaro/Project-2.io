@@ -22,24 +22,42 @@ from pprint import pprint
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
 # from app import db, Location, Trend
-from .app import db, Location, Trend
+from .app import db
+from .models import Location, Trend
 
-# DEBUG - Try this to ensure imports are working
-def try_db_access():
-    results = db.session.query(Location).all()
-    return results
+# API Keys
+# Twitter API
+# key_twitter_tweetquestor_consumer_api_key
+# key_twitter_tweetquestor_consumer_api_secret_key
+# key_twitter_tweetquestor_access_token
+# key_twitter_tweetquestor_access_secret_token
+
+# Flickr API
+# key_flicker_infoquestor_key
+# key_flicker_infoquestor_secret
+from api_config import *
+
+# Setup Tweepy API Authentication to access Twitter
+import tweepy
+
+auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
+auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
+api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 # # Function Definitions: Twitter API Rate Limit Management
 
-def api_calls_remaining( a_api, a_type = "place"):
+def api_calls_remaining( a_type = "place"):
 # Return the number of Twitter API calls remaining
 # for the specified API type:
 # 'place': Top 10 trending topics for a WOEID
 # 'closest': Locations near a specificed lat/long for which Twitter has trending topic info
 # 'available': Locations for which Twitter has topic info
+# 
+# Global Variable: 'api': Tweepy API
+# 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = a_api.rate_limit_status()
+    rate_limits = api.rate_limit_status()
     
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
@@ -56,15 +74,18 @@ def api_calls_remaining( a_api, a_type = "place"):
     return remaining
 
 
-def api_time_before_reset( a_api, a_type = "place"):
+def api_time_before_reset( a_type = "place"):
 # Return the number of minutes until the Twitter API is reset
 # for the specified API type:
 # 'place': Top 10 trending topics for a WOEID
 # 'closest': Locations near a specificed lat/long for which Twitter has trending topic info
 # 'available': Locations for which Twitter has topic info
+# 
+# Global Variable: 'api': Tweepy API
+# 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = a_api.rate_limit_status()
+    rate_limits = api.rate_limit_status()
     
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
