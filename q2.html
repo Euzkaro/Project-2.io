@@ -2,69 +2,133 @@
 <html lang="en">
 
 <!--Head and MetaData-->
+
 <head>
-  <title>Project 2</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <title>trend by location</title>
+
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+
+    <!--Bootstrap-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <!--D3.JS-->
+    <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <!-- <script type="text/javascript"
+        src="https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json"></script> -->
+
+    <!-- Leaflet css and then js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+
+    <script type="text/javascript" src="static/js/config.js"></script>
+    <link rel="stylesheet" href="static/css/style.css">
+
 </head>
+
+<!--Body-->
+
 <body>
 
-<!--Header-->
-<header>
-        <img class="img-theme" src="logo.dms">
-</header>
+    <!--Header-->
+    <header>
+        <img class="img-theme" src="static/images/sps_horizontal_logo.gif">
+    </header>
 
-<!--Navbar & Toggle-->
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <!--Bottons-->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>                        
-            </button>
-            <a class="navbar-brand" href="#">Data Science Project 2</a>
+    <!--Navbar & Toggle-->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <!--Buttons-->
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Data Science Project 2</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="index.html">Summary</a></li>
+                    <!--li class="dropdown"-->
+                    <li><a href="q1.html">Question 1</a></li>
+                    <li class="active"><a href="q2_abg.html">Trend by Location</a></li>
+                    <li><a href="q3_abg.html">Location by Trend</a></li>
+                    <li><a href="q4.html">Question 4</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+            <h2>GeoTweet: Find what's trending by topic or location</h2>
+            <h3>Click on a city marker or trend to start!</h3>
+          </div>
     </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="index.html">Summary</a></li>
-            <!--li class="dropdown"-->
-            <li><a href="q1.html">Question 1</a></li>
-            <li class="active"><a href="q2.html">Question 2</a></li>
-            <li><a href="q3.html">Question 3</a></li>
-            <li><a href="q4.html">Question 4</a></li>
-          </ul>
-        </div>
-</nav>
-  
-<div class="container">
-  <h1>Question 2</h1>
-  <hr>
-  <h2>Description</h2>
-  <h3>Main Findings</h3>
-  <p>Here goes your text.</p>
-</div>
 
-<!--Pager-->
-<div class="container">                 
+    <div class=row>
+        <div class="col-xs-8">
+            <!--########################################################################-->
+            <!--THE MAP-->
+            <!--########################################################################-->
+            <div id="map"></div>
+            <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
+            <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+            <script type="text/javascript" src="static/js/consolidated_map.js"></script>
+
+            <!--########################################################################-->
+            <!-- THE TABLE -->
+            <!--########################################################################-->
+        </div>
+
+        <div class="col-xs-4">
+            <div class="card card-title">Twitter Trends</div>
+            <hr />
+
+            <div class="card card-body\">
+                <table class=fixed_header>
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>WOEID</th>
+                            <th>Trending</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Build trending topics Table -->
+    <script src="static/js/minSampleData.js"></script>
+    <script src="static/js/buildTrendTbl.js"></script>
+
+    <!--Pager-->
+    <div class="container">
         <ul class="pager">
-          <li><a href="q1.html">Previous</a></li>
-          <li><a href="q3.html">Next</a></li>
+            <li><a href="q1.html">Previous</a></li>
+            <li><a href="q3.html">Next</a></li>
         </ul>
-      </div>
+    </div>
 
-<!--Footer & Copyright-->
-<footer class="page-footer font-small">
+    <!--Footer & Copyright-->
+    <footer class="page-footer font-small">
         <!-- Copyright -->
-        <div class="footer-copyright text-center py-3"> &copy;2019 | Alan Garbarino | Eugenio Gallastegui | Hao Lu | Jeff Brown </a>
+        <div class="footer-copyright text-center py-3"> &copy;2019 | Alan Garbarino | Eugenio Gallastegui | Jeff Brown
         </div>
-</footer>
+    </footer>
 
 </body>
+
 </html>
