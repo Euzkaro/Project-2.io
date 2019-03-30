@@ -1,4 +1,4 @@
-from app import db
+from .app import db
 
 # Database schema for Twitter 'locations' table
 class Location(db.Model):
@@ -53,8 +53,7 @@ class Trend(db.Model):
     twitter_tweet_url = db.Column(db.String(250))
     twitter_tweet_volume = db.Column(db.Float)
 
-    locations = db.relationship('Location',
-                backref=db.backref('trends', lazy=True))
+    locations = db.relationship('Location', backref=db.backref('trends', lazy=True))
      
     def __repr__(self):
         return '<Trend %r>' % (self.name)

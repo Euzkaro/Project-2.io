@@ -2,12 +2,31 @@
 # 
 # @Author Jeffery Brown (daddyjab)
 # @Date 3/27/19
-# @File ETL_for_GeoTweet
+# @File app.py
 
 
 # import necessary libraries
 import os
 from flask import Flask, render_template, jsonify, request, redirect
+
+# API Keys
+# Twitter API
+# key_twitter_tweetquestor_consumer_api_key
+# key_twitter_tweetquestor_consumer_api_secret_key
+# key_twitter_tweetquestor_access_token
+# key_twitter_tweetquestor_access_secret_token
+
+# Flickr API
+# key_flicker_infoquestor_key
+# key_flicker_infoquestor_secret
+from api_config import *
+
+# Setup Tweepy API Authentication to access Twitter
+import tweepy
+
+auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
+auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
+api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 #################################################
 # Flask Setup
@@ -19,80 +38,70 @@ app = Flask(__name__)
 #################################################
 
 from flask_sqlalchemy import SQLAlchemy
-# asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
+#Probably don't need these from SQLAlchemy: asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
 
-db_path_flask_app = "sqlite:///data/twitter_trends.db"
-
+db_path_flask_app = "sqlite:///../data/twitter_trends.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or db_path_flask_app
+
+# Flask-SQLAlchemy database
 db = SQLAlchemy(app)
 
-# from models import (Location, Trend)
+# Import the schema for the Location and Trend tables needed for
+# 'twitter_trends.sqlite' database tables 'locations' and 'trends'
+from .models import Location, Trend
 
-# Database schema for Twitter 'locations' table
-class Location(db.Model):
-    __tablename__ = 'locations'
-    
-    # Defining the columns for the table 'locations',
-    # which will hold all of the locations in the U.S. for which
-    # top trends data is available, as well as location specific
-    # info like latitude/longitude
-    id = db.Column(db.Integer, primary_key=True)
-    woeid = db.Column(db.Integer)
-    twitter_country = db.Column(db.String(100))
-    tritter_country_code = db.Column(db.String(10))
-    twitter_name = db.Column(db.String(250))
-    twitter_parentid = db.Column(db.Integer)
-    twitter_type = db.Column(db.String(50))
-    country_name = db.Column(db.String(250))
-    country_name_only = db.Column(db.String(250))
-    country_woeid = db.Column(db.Integer)
-    county_name = db.Column(db.String(250))
-    county_name_only = db.Column(db.String(250))
-    county_woeid = db.Column(db.Integer)
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    name_full = db.Column(db.String(250))
-    name_only = db.Column(db.String(250))
-    name_woe = db.Column(db.String(250))
-    place_type = db.Column(db.String(250))
-    state_name = db.Column(db.String(250))
-    state_name_only = db.Column(db.String(250))
-    state_woeid = db.Column(db.Integer)
-    timezone = db.Column(db.String(250))
-    
-    def __repr__(self):
-        return '<Location %r>' % (self.name)
+# Import database management functions needed# to update the
+# 'twitter_trends.sqlite' database tables 'locations' and 'trends'
+from .db_management import api_calls_remaining, api_time_before_reset, try_db_access
 
-# Database schema for Twitter 'trends' table
-class Trend(db.Model):
-    __tablename__ = 'trends'
-    
-    # Defining the columns for the table 'trends',
-    # which will hold all of the top trends associated with
-    # locations in the 'locations' table
-    id = db.Column(db.Integer, primary_key=True)
-    woeid = db.Column(db.Integer, db.ForeignKey('locations.woeid') )
-    twitter_as_of = db.Column(db.String(100))
-    twitter_created_at = db.Column(db.String(100))
-    twitter_name = db.Column(db.String(250))
-    twitter_tweet_name = db.Column(db.String(250))
-    twitter_tweet_promoted_content = db.Column(db.String(250))
-    twitter_tweet_query = db.Column(db.String(250))
-    twitter_tweet_url = db.Column(db.String(250))
-    twitter_tweet_volume = db.Column(db.Float)
-
-    locations = db.relationship('Location', backref=db.backref('trends', lazy=True))
-     
-    def __repr__(self):
-        return '<Trend %r>' % (self.name)
-
-
-
-# Default rote - display the main page
+# Default route - display the main page
 # NOTE: Flask expects rendered templates to be in the ./templates folder
 @app.route("/")
 def home():
     return render_template("index.html")
+
+# Return information relevant to update
+# of the 'locations' and 'trends' database tables
+@app.route("/update")
+def update_info():
+    # Obtain remaining number of API calls for trends/place
+    api_calls_remaining_place = api_calls_remaining( api, "place")
+
+    # Obtain time before rate limits are reset for trends/available
+    api_time_before_reset_place = api_time_before_reset( api, "available")
+
+    # Obtain remaining number of API calls for trends/place
+    api_calls_remaining_available = api_calls_remaining( api, "place")
+
+    # Obtain time before rate limits are reset for trends/available
+    api_time_before_reset_available = api_time_before_reset( api, "available")
+
+    # Count the number of locations in the 'locations' table
+    n_locations = db.session.query(Location).count()
+
+    # Count the number of total trends in the 'trends' table
+    n_trends = db.session.query(Trend).count()
+
+    # Provide the average number of Twitter Trends provided per location
+    # Use try/except to catch divide by zero
+    try:
+        n_trends_per_location_avg = n_trends / n_locations
+    except ZeroDivisionError:
+        n_trends_per_location_avg = None
+
+    api_info = {
+        'api_calls_remaining_place': api_calls_remaining_place,
+        'api_time_before_reset_place': api_time_before_reset_place,
+        'api_calls_remaining_available': api_calls_remaining_available,
+        'api_time_before_reset_available': api_time_before_reset_available,
+        'n_locations': n_locations,
+        'n_trends': n_trends,
+        'n_trends_per_location_avg' : n_trends_per_location_avg
+    }
+
+    return jsonify(api_info)
+
+
     
 # Return a list of all locations with Twitter Top Trend info
 @app.route("/locations")
