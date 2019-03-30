@@ -34,7 +34,8 @@ from .models import (Location, Trend)
 # Import database management functions needed# to update the
 # 'twitter_trends.sqlite' database tables 'locations' and 'trends'
 from .db_management import (
-    api_calls_remaining, api_time_before_reset
+    api_calls_remaining, api_time_before_reset,
+    update_db_locations_table, update_db_trends_table
     )
 
 # Default route - display the main page
@@ -51,10 +52,10 @@ def update_info():
     api_calls_remaining_place = api_calls_remaining( "place")
 
     # Obtain time before rate limits are reset for trends/available
-    api_time_before_reset_place = api_time_before_reset( "available")
+    api_time_before_reset_place = api_time_before_reset( "place")
 
     # Obtain remaining number of API calls for trends/place
-    api_calls_remaining_available = api_calls_remaining( "place")
+    api_calls_remaining_available = api_calls_remaining( "available")
 
     # Obtain time before rate limits are reset for trends/available
     api_time_before_reset_available = api_time_before_reset( "available")
@@ -85,7 +86,33 @@ def update_info():
     return jsonify(api_info)
 
 
-    
+# Update the 'locations' table via API calls
+# Note: Typically requires less than 1 minute
+@app.route("/update/locations")
+def update_locations_table():
+    # Update the locations table through API calls
+    n_locations = update_db_locations_table()
+
+    api_info = {
+        'n_locations': n_locations
+    }
+
+    return jsonify(api_info)
+
+# Update the 'locations' table via API calls
+# Note: Typically requires less than 1 minute
+@app.route("/update/trends")
+def update_trends_table():
+    # Update the trends table through API calls
+    n_location_trends = update_db_trends_table()
+
+    api_info = {
+        'n_location_trends': n_location_trends
+    }
+
+    return jsonify(api_info)
+
+
 # Return a list of all locations with Twitter Top Trend info
 @app.route("/locations")
 def get_all_locations():
