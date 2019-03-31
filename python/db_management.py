@@ -45,7 +45,7 @@ if len(app.config['key_twitter_tweetquestor_consumer_api_key']) > 0:
 else:
     # Keys have not been set in the environment
     # So need to import them locally
-    from api_config import 
+    from api_config import *
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
