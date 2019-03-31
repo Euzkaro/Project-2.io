@@ -28,18 +28,24 @@ from .models import Location, Trend
 # Only perform import if this is being run locally.
 # If being run from Heroku the keys will be provided
 # via the app environment variables configured there
-#from api_config import 
+if len(app.config['key_twitter_tweetquestor_consumer_api_key']) > 0:
+    # At least one of the required keys is provided via the
+    # environment, so this is likely running on Heroku
 
-# API Keys
-# Twitter API
-# key_twitter_tweetquestor_consumer_api_key
-# key_twitter_tweetquestor_consumer_api_secret_key
-# key_twitter_tweetquestor_access_token
-# key_twitter_tweetquestor_access_secret_token
+    # Twitter API
+    key_twitter_tweetquestor_consumer_api_key = app.config['key_twitter_tweetquestor_consumer_api_key']
+    key_twitter_tweetquestor_consumer_api_secret_key = app.config['key_twitter_tweetquestor_consumer_api_secret_key']
+    key_twitter_tweetquestor_access_token = app.config['key_twitter_tweetquestor_access_token']
+    key_twitter_tweetquestor_access_secret_token = app.config['key_twitter_tweetquestor_access_secret_token']
 
-# Flickr API
-# key_flicker_infoquestor_key
-# key_flicker_infoquestor_secret
+    # Flickr API
+    key_flicker_infoquestor_key = app.config['key_flicker_infoquestor_key']
+    key_flicker_infoquestor_secret = app.config['key_flicker_infoquestor_secret']
+
+else:
+    # Keys have not been set in the environment
+    # So need to import them locally
+    from api_config import 
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
