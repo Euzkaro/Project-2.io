@@ -22,15 +22,15 @@ from pprint import pprint
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
 # from app import db, Location, Trend
-from .app import db
+from .app import db, app
 from .models import Location, Trend
 
 # Only perform import if this is being run locally.
 # If being run from Heroku the keys will be provided
 # via the app environment variables configured there
-if len(app.config['key_twitter_tweetquestor_consumer_api_key']) > 0:
-    # At least one of the required keys is provided via the
-    # environment, so this is likely running on Heroku
+
+try:
+    # This will run if the keys are all set via Heroku environment
 
     # Twitter API
     key_twitter_tweetquestor_consumer_api_key = app.config['key_twitter_tweetquestor_consumer_api_key']
@@ -42,7 +42,7 @@ if len(app.config['key_twitter_tweetquestor_consumer_api_key']) > 0:
     key_flicker_infoquestor_key = app.config['key_flicker_infoquestor_key']
     key_flicker_infoquestor_secret = app.config['key_flicker_infoquestor_secret']
 
-else:
+except KeyError:
     # Keys have not been set in the environment
     # So need to import them locally
     from api_config import *
