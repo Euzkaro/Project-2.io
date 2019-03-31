@@ -33,14 +33,23 @@ try:
     # This will run if the keys are all set via Heroku environment
 
     # Twitter API
-    key_twitter_tweetquestor_consumer_api_key = app.config['key_twitter_tweetquestor_consumer_api_key']
-    key_twitter_tweetquestor_consumer_api_secret_key = app.config['key_twitter_tweetquestor_consumer_api_secret_key']
-    key_twitter_tweetquestor_access_token = app.config['key_twitter_tweetquestor_access_token']
-    key_twitter_tweetquestor_access_secret_token = app.config['key_twitter_tweetquestor_access_secret_token']
+    key_twitter_tweetquestor_consumer_api_key = os.environ['key_twitter_tweetquestor_consumer_api_key']
+    key_twitter_tweetquestor_consumer_api_secret_key = os.environ['key_twitter_tweetquestor_consumer_api_secret_key']
+    key_twitter_tweetquestor_access_token = os.environ['key_twitter_tweetquestor_access_token']
+    key_twitter_tweetquestor_access_secret_token = os.environ['key_twitter_tweetquestor_access_secret_token']
 
     # Flickr API
-    key_flicker_infoquestor_key = app.config['key_flicker_infoquestor_key']
-    key_flicker_infoquestor_secret = app.config['key_flicker_infoquestor_secret']
+    key_flicker_infoquestor_key = os.environ['key_flicker_infoquestor_key']
+    key_flicker_infoquestor_secret = os.environ['key_flicker_infoquestor_secret']
+
+    # print("Keys in environment variables:")
+    # print(key_twitter_tweetquestor_consumer_api_key)
+    # print(key_twitter_tweetquestor_consumer_api_key)
+    # print(key_twitter_tweetquestor_consumer_api_secret_key )
+    # print(key_twitter_tweetquestor_access_token )
+    # print(key_twitter_tweetquestor_access_secret_token )
+    # print(key_flicker_infoquestor_key )
+    # print(key_flicker_infoquestor_secret )
 
 except KeyError:
     # Keys have not been set in the environment
