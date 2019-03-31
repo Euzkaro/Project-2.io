@@ -45,7 +45,10 @@ try:
 except KeyError:
     # Keys have not been set in the environment
     # So need to import them locally
-    from api_config import *
+    # THIS DIDN'T WORK -- STILL TRIES TO FIND THE api_config MODULE EVEN WHEN RUNNING ON HEROKU!
+    # MANUALLY COMMENTING THIS OUT!
+    # from api_config import *
+    print("Error: At least one of the API Keys has not been populated on Heroku!")
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
