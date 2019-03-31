@@ -25,6 +25,11 @@ from pprint import pprint
 from .app import db
 from .models import Location, Trend
 
+# Only perform import if this is being run locally.
+# If being run from Heroku the keys will be provided
+# via the app environment variables configured there
+#from api_config import 
+
 # API Keys
 # Twitter API
 # key_twitter_tweetquestor_consumer_api_key
@@ -35,7 +40,6 @@ from .models import Location, Trend
 # Flickr API
 # key_flicker_infoquestor_key
 # key_flicker_infoquestor_secret
-from api_config import *
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
