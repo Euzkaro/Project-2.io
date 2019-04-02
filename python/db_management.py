@@ -42,22 +42,15 @@ try:
     key_flicker_infoquestor_key = os.environ['key_flicker_infoquestor_key']
     key_flicker_infoquestor_secret = os.environ['key_flicker_infoquestor_secret']
 
-    # print("Keys in environment variables:")
-    # print(key_twitter_tweetquestor_consumer_api_key)
-    # print(key_twitter_tweetquestor_consumer_api_key)
-    # print(key_twitter_tweetquestor_consumer_api_secret_key )
-    # print(key_twitter_tweetquestor_access_token )
-    # print(key_twitter_tweetquestor_access_secret_token )
-    # print(key_flicker_infoquestor_key )
-    # print(key_flicker_infoquestor_secret )
-
 except KeyError:
     # Keys have not been set in the environment
     # So need to import them locally
-    # THIS DIDN'T WORK -- STILL TRIES TO FIND THE api_config MODULE EVEN WHEN RUNNING ON HEROKU!
-    # MANUALLY COMMENTING THIS OUT!
-    # from api_config import *
-    print("Error: At least one of the API Keys has not been populated on Heroku!")
+    try:
+        from api_config import *
+
+    # If the api_config file is not available, then all we can do is flag an error
+    except ImportError:
+        print("Error: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
