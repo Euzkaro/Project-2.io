@@ -22,20 +22,36 @@ from pprint import pprint
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
 # from app import db, Location, Trend
-from .app import db
+from .app import db, app
 from .models import Location, Trend
 
-# API Keys
-# Twitter API
-# key_twitter_tweetquestor_consumer_api_key
-# key_twitter_tweetquestor_consumer_api_secret_key
-# key_twitter_tweetquestor_access_token
-# key_twitter_tweetquestor_access_secret_token
+# Only perform import if this is being run locally.
+# If being run from Heroku the keys will be provided
+# via the app environment variables configured there
 
-# Flickr API
-# key_flicker_infoquestor_key
-# key_flicker_infoquestor_secret
-from .api_config import *
+try:
+    # This will run if the keys are all set via Heroku environment
+
+    # Twitter API
+    key_twitter_tweetquestor_consumer_api_key = os.environ['key_twitter_tweetquestor_consumer_api_key']
+    key_twitter_tweetquestor_consumer_api_secret_key = os.environ['key_twitter_tweetquestor_consumer_api_secret_key']
+    key_twitter_tweetquestor_access_token = os.environ['key_twitter_tweetquestor_access_token']
+    key_twitter_tweetquestor_access_secret_token = os.environ['key_twitter_tweetquestor_access_secret_token']
+
+    # Flickr API
+    key_flicker_infoquestor_key = os.environ['key_flicker_infoquestor_key']
+    key_flicker_infoquestor_secret = os.environ['key_flicker_infoquestor_secret']
+
+except KeyError:
+    # Keys have not been set in the environment
+    # So need to import them locally
+
+    try:
+        from api_config import *
+
+    # If the api_config file is not available, then all we can do is flag an error
+    except ImportError:
+        print("Error: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
