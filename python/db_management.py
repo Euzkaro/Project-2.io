@@ -35,7 +35,7 @@ from .models import Location, Trend
 # Flickr API
 # key_flicker_infoquestor_key
 # key_flicker_infoquestor_secret
-from api_config import *
+from .api_config import *
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
