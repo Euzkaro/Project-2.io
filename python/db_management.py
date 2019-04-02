@@ -25,6 +25,7 @@ from pprint import pprint
 from .app import db, app
 from .models import Location, Trend
 
+<<<<<<< HEAD
 # Only perform import if this is being run locally.
 # If being run from Heroku the keys will be provided
 # via the app environment variables configured there
@@ -58,6 +59,19 @@ except KeyError:
     # MANUALLY COMMENTING THIS OUT!
     # from api_config import *
     print("Error: At least one of the API Keys has not been populated on Heroku!")
+=======
+# API Keys
+# Twitter API
+# key_twitter_tweetquestor_consumer_api_key
+# key_twitter_tweetquestor_consumer_api_secret_key
+# key_twitter_tweetquestor_access_token
+# key_twitter_tweetquestor_access_secret_token
+
+# Flickr API
+# key_flicker_infoquestor_key
+# key_flicker_infoquestor_secret
+from .api_config import *
+>>>>>>> d30e74a09478510214ca869994e3bfd225d744c6
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
