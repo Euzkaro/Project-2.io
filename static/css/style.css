@@ -10,6 +10,8 @@ html {
     height: auto;
     object-fit: cover;
     max-height: 80px !important;
+
+
   }
 
 .fixed_header{
