@@ -1,6 +1,5 @@
 function createMap(trendLocMarkers) {
 
-
     //Create the base layers that will be the background of our map
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
@@ -11,10 +10,10 @@ function createMap(trendLocMarkers) {
 
     //var votes = createVoters();
     
+
     var states = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
         maxZoom: 4,
-
         //minZoom:10,
         id: "mapbox.states",
         accessToken: API_KEY
@@ -26,6 +25,7 @@ function createMap(trendLocMarkers) {
     //     id: "mapbox.demographics1",
     //     accessToken: API_KEY
     // });
+
 
     // Create a baseMaps object to hold the lightmap layer
     var baseMaps = {
@@ -279,12 +279,5 @@ var locationData = locationSampleData;
 createMarkers(locationData);
 
 
-    // Create a layer group made from the location markers array, pass it into the createMap function
-    createMap(L.layerGroup(trendLocMarkers));
-};
 
-// Retrieve data from sample data file and call marker function
-var locationData = locationSampleData;
-
-createMarkers(locationData);
 
