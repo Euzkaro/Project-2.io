@@ -166,12 +166,13 @@ function createMap(trendLocMarkers) {
                     "<br> Democrat Voters (%): " + feature.properties.Democrat +
                     "<br> College Graduates (%): " + feature.properties.BachelorDegree +
                     "<br> High School Graduates (%): " + feature.properties.HighSchool +
-                    "<br> Whites (%): " + feature.properties.White +
-                    "<br> Blacks (%): " + feature.properties.Black +
-                    "<br> Asians (%): " + feature.properties.Asian +
-                    "<br> Latinos (%): " + feature.properties.Latino +
-                    "<br> Natives (%): " + feature.properties.Native +
+                    // "<br> Whites (%): " + feature.properties.White +
+                    // "<br> Blacks (%): " + feature.properties.Black +
+                    // "<br> Asians (%): " + feature.properties.Asian +
+                    // "<br> Latinos (%): " + feature.properties.Latino +
+                    // "<br> Natives (%): " + feature.properties.Native +
                     "<br> Unemployment (%): " + feature.properties.Unemployment +
+                    '<br><iframe width="321px" height="548px" src="'+ feature.properties.image +'"></iframe>'+
                     "</p>");
             }
         }).addTo(map);
