@@ -28,11 +28,13 @@
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
 
+    <!-- <script type="text/javascript" src="static/js/eventHandling.js"></script> -->
     <script type="text/javascript" src="static/js/config.js"></script>
 
     <!-- Leaflet-Choropleth JavaScript -->
     <script type="text/javascript" src="./static/js/choropleth.js"></script>
     <link rel="stylesheet" href="static/css/style.css">
+    
 
     <!-- Plotly JavaScript -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -93,7 +95,7 @@
         </div>
 
         <div class="col-xs-4">
-            <div class="card card-title">Twitter Trends</div>
+            <div class="card card-title">Trending Tweets</div>
             <hr />
 
             <div class="card card-body\">
@@ -101,8 +103,8 @@
                     <thead>
                         <tr>
                             <th>Location</th>
-                            <th>WOEID</th>
-                            <th>Trending</th>
+                            <th>Tweet</th>
+                            <th>URL</th>
                             <th>Volume</th>
                         </tr>
                     </thead>
@@ -156,7 +158,10 @@
     </div>
 
     <!-- Build trending topics Table -->
-    <script src="static/js/minSampleData.js"></script>
+    <!-- <script src="static/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
+
+    <!-- Build trending topics Table look at spin.js library-->
+    <script src="static/js/chicagoTrending.js"></script>
     <script src="static/js/buildTrendTbl.js"></script>
 
     <!--Pager-->
@@ -174,10 +179,10 @@
         </div>
     </footer>
 
-<!-- MOVED SCRIPT ELEMENT TO BOTTOM TO ENSURE OTHER ELEMENTS READY BEFORE SCRIPT NEEDS THEM -->
-                <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
-                <script type="text/javascript" src="static/js/locationSampleData.js"></script>
-                <script type="text/javascript" src="static/js/main-map.js"></script>
+  <!-- MOVED SCRIPT ELEMENT TO BOTTOM TO ENSURE OTHER ELEMENTS READY BEFORE SCRIPT NEEDS THEM -->
+  <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
+  <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+  <script type="text/javascript" src="static/js/main-map.js"></script>
     
 
 </body>
