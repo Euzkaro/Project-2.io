@@ -9,7 +9,7 @@ function createMap(trendLocMarkers) {
     });
 
     //var votes = createVoters();
-    
+
 
     var states = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
@@ -18,7 +18,7 @@ function createMap(trendLocMarkers) {
         id: "mapbox.states",
         accessToken: API_KEY
     });
-    
+
     // var demographics1 = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
     //     attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
     //     maxZoom: 4,
@@ -32,13 +32,13 @@ function createMap(trendLocMarkers) {
         "States": states,
         "Light": lightmap
         //"Voters": ChoroMap
-        
+
     };
 
     // Create an overlayMaps object to hold the trend location layer
     var overlayMaps = {
         "Trend Locations": trendLocMarkers
-        
+
     };
 
     // Create the map object with options
@@ -48,7 +48,7 @@ function createMap(trendLocMarkers) {
         layers: [states, trendLocMarkers]
     });
 
-        //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
+    //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: true
     }).addTo(map);
@@ -67,7 +67,7 @@ function createMap(trendLocMarkers) {
 
             // Number of breaks in step range
             steps: 5,
-            maxZoom:10, 
+            maxZoom: 10,
             // q for quartile, e for equidistant, k for k-means
             mode: "q",
             style: {
@@ -77,11 +77,11 @@ function createMap(trendLocMarkers) {
                 fillOpacity: 0.8
             }
 
-        //     // Binding a pop-up to each layer
-        //         onEachFeature: function(feature, layer) {
-        //           layer.bindPopup("<h1>" + feature.properties.name + "</h1>" + "Population: " + feature.properties.Population + "<br> Democrat Voters:<br>" +
-        //              feature.properties.Democrat + "%");
-        //         }
+            //     // Binding a pop-up to each layer
+            //         onEachFeature: function(feature, layer) {
+            //           layer.bindPopup("<h1>" + feature.properties.name + "</h1>" + "Population: " + feature.properties.Population + "<br> Democrat Voters:<br>" +
+            //              feature.properties.Democrat + "%");
+            //         }
         }).addTo(map);
 
         // Set up the legend
@@ -130,9 +130,11 @@ function createMap(trendLocMarkers) {
     d3.json(statesData, function (data) {
         // Creating a geoJSON layer with the retrieved data
         L.geoJson(data, {
-            style: {fillOpacity : 0.0,
-            color: "white",
-            weight: 1},
+            style: {
+                fillOpacity: 0.0,
+                color: "white",
+                weight: 1
+            },
             // Called on each feature
             onEachFeature: function (feature, layer) {
                 // Set mouse events to change map styling
@@ -172,7 +174,7 @@ function createMap(trendLocMarkers) {
                     // "<br> Latinos (%): " + feature.properties.Latino +
                     // "<br> Natives (%): " + feature.properties.Native +
                     "<br> Unemployment (%): " + feature.properties.Unemployment +
-                    '<br><iframe width="321px" height="548px" src="'+ feature.properties.image +'"></iframe>'+
+                    '<br><iframe width="321px" height="548px" src="' + feature.properties.image + '"></iframe>' +
                     "</p>");
             }
         }).addTo(map);
@@ -247,6 +249,90 @@ function createMap(trendLocMarkers) {
 //     });
 //     return (votes);
 // };
+
+
+
+function createDemographicsChart(a_data, a_y_key, a_x_key, a_state_name = null, a_chart_index = 0) {
+// Function to draw a Demographics Chart based upon a selected
+// location (or state?)
+//
+// Arguments:
+//    a_data: Data to use for the chart (array of objects)
+//    a_y_key: Key for the y-axis data to plot
+//    a_x_key: Key for the x-axis data to plot
+//    a_state_name: Name of the state to use for the chart
+//    a_chart_id: The id of the chart to place the chart (e.g., "demo_chart_0") 
+
+    // Process arguments
+
+    // Valid chart index values are 0 to 2 inclusive
+    chart_index = int(a_chart_index);
+    chart_index = chart_index < 0 ? 0 : chart_index;
+    chart_index = chart_index > 2 ? 2 : chart_index;
+    chart_id = `demo_chart_${chart_index}`
+
+    // For now, assume we have well-behaved data and x and y axis keys
+    // Sample Data:
+    // a_data = {
+    //     "type":"Feature",
+    //     "id":"01",
+    //     "properties":
+    //         {
+    //             "name":"Alabama",
+    //             "Republican":62.9,
+    //             "Democrat":34.6,
+    //             "Population":4706548,
+    //             "BachelorDegree":15.39,
+    //             "HighSchool":76.78,
+    //             "White":66.65,
+    //             "Black":28.23,
+    //             "Native":0.61,
+    //             "Asian":0.55,
+    //             "Latino":2.77,
+    //             "Unemployment":0.09,
+    //             "image": "https://embed.datausa.io/profile/geo/alabama/economy/income/?viz=True",
+    //             "density":94.65
+    //         },
+    //
+    //     "geometry":
+    //         {
+    //             "type":"Polygon",
+    //             "coordinates":[[[-87.359296,35.00118],[-85.606675,34.984749],[-85.431413,34.124869],[-85.184951,32.859696],[-85.069935,32.580372],[-84.960397,32.421541],[-85.004212,32.322956],[-84.889196,32.262709],[-85.058981,32.13674],[-85.053504,32.01077],[-85.141136,31.840985],[-85.042551,31.539753],[-85.113751,31.27686],[-85.004212,31.003013],[-85.497137,30.997536],[-87.600282,30.997536],[-87.633143,30.86609],[-87.408589,30.674397],[-87.446927,30.510088],[-87.37025,30.427934],[-87.518128,30.280057],[-87.655051,30.247195],[-87.90699,30.411504],[-87.934375,30.657966],[-88.011052,30.685351],[-88.10416,30.499135],[-88.137022,30.318396],[-88.394438,30.367688],[-88.471115,31.895754],[-88.241084,33.796253],[-88.098683,34.891641],[-88.202745,34.995703],[-87.359296,35.00118]]]
+    //         }
+    //     }
+
+    // For now, assume we have well-behaved state name
+
+    var eyeColor = ["Brown", "Brown", "Brown", "Brown", "Brown",
+        "Brown", "Brown", "Brown", "Green", "Green",
+        "Green", "Green", "Green", "Blue", "Blue",
+        "Blue", "Blue", "Blue", "Blue"];
+
+    var eyeFlicker = [26.8, 27.9, 23.7, 25, 26.3, 24.8,
+        25.7, 24.5, 26.4, 24.2, 28, 26.9,
+        29.1, 25.7, 27.2, 29.9, 28.5, 29.4, 28.3];
+
+    // Create the Trace
+    var trace1 = {
+        x: eyeColor,
+        y: eyeFlicker,
+        type: "bar"
+    };
+
+    // Create the data array for the plot
+    var data = [trace1];
+
+    // Define the plot layout
+    var layout = {
+        title: "Eye Color vs Flicker",
+        xaxis: { title: "Eye Color" },
+        yaxis: { title: "Flicker Frequency" }
+    };
+
+    // Plot the chart to a div tag with id "demochart0"
+    Plotly.newPlot(chart_id, data, layout);
+}
+
 //######################################################################################
 function createMarkers(data) {
 
@@ -273,10 +359,16 @@ function createMarkers(data) {
     createMap(L.layerGroup(trendLocMarkers));
 };
 
+
 // Retrieve data from sample data file and call marker function
 var locationData = locationSampleData;
 
 createMarkers(locationData);
+
+var statesData = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
+
+createDemographicsChart(statesData, "abc", "def", a_state_name = null, a_chart_index = 0); 
+
 
 
 

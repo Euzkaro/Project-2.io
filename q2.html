@@ -29,9 +29,13 @@
         crossorigin=""></script>
 
     <script type="text/javascript" src="static/js/config.js"></script>
+
     <!-- Leaflet-Choropleth JavaScript -->
     <script type="text/javascript" src="./static/js/choropleth.js"></script>
     <link rel="stylesheet" href="static/css/style.css">
+
+    <!-- Plotly JavaScript -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 </head>
 
@@ -82,9 +86,6 @@
             <!--THE MAP-->
             <!--########################################################################-->
             <div id="map"></div>
-            <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
-            <script type="text/javascript" src="static/js/locationSampleData.js"></script>
-            <script type="text/javascript" src="static/js/main-map.js"></script>
 
             <!--########################################################################-->
             <!-- THE TABLE -->
@@ -112,6 +113,48 @@
         </div>
     </div>
 
+    <div class=row>
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 0 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 0</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_0"></div>
+            </div>
+        </div>
+
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 1 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 1</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_1"></div>
+            </div>
+        </div>
+
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 2 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 2</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_2"></div>
+            </div>
+        </div>
+
+    </div>
+
     <!-- Build trending topics Table -->
     <script src="static/js/minSampleData.js"></script>
     <script src="static/js/buildTrendTbl.js"></script>
@@ -130,6 +173,12 @@
         <div class="footer-copyright text-center py-3"> &copy;2019 | Alan Garbarino | Eugenio Gallastegui | Jeff Brown
         </div>
     </footer>
+
+<!-- MOVED SCRIPT ELEMENT TO BOTTOM TO ENSURE OTHER ELEMENTS READY BEFORE SCRIPT NEEDS THEM -->
+                <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
+                <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+                <script type="text/javascript" src="static/js/main-map.js"></script>
+    
 
 </body>
 
