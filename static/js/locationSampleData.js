@@ -47,8 +47,8 @@ var locationSampleData = [
           countryCode: "US",
           name: "Boston",
           parentid: 23424977,
-          location_lat: 33.4598,
-          location_long: -94.4155,
+          location_lat: 42.3601,
+          location_long: -71.0589,
           placeType: {
             code: 7,
             name: "Town"
