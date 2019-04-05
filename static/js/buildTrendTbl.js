@@ -1,68 +1,87 @@
+// Retrieve data from Heroku
 // Populate html table from data set
-// retrieve data from data file
-var tableData = minSampleData;
 
-// Get a reference to the table body
-var tbody = d3.select("tbody");
+// Initial build with default United States woeid
+buildLocTable();
 
-// Loop through data and append one table row `tr` for each object
-tableData.forEach((locTrend) => {
-  var row = tbody.append("tr");
+// Build trend table
+function buildLocTable(woeid = 23424977) {
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const url = `https://geotweetapp.herokuapp.com/trends/top/${woeid}`;
+  const fields = ["twitter_name", "twitter_tweet_name", "twitter_tweet_url", "twitter_tweet_volume"]
 
-  // Append data elements `td` for each object and enter data values
-  Object.entries(locTrend).forEach(([key, value]) => {
-    var cell = tbody.append("td");
-    cell.text(value);
+  d3.json(proxyurl + url, function (tableData) {
+
+    // Get a reference to the table body
+    var tbody = d3.select("tbody");
+
+    // Clear existing table data
+    tbody.html("");
+
+    // Loop through data and append one table row `tr` for each object
+    tableData.forEach((locTrend) => {
+      var row = tbody.append("tr");
+
+      // Itereate through data and append data element `td` 
+      // and data for data fields specified in the fields list above
+      fields.forEach(f => {
+        var cell = tbody.append("td");
+        cell.text(locTrend[f]);
+      });
+
+    });
+
+    //Push event location woeid to an array
+    var woeids = [];
+    woeids.push(woeid);
+
+    //Call function to get state for event woeid if not default United States woeid
+    var targetStates = [];
+    if (woeids[0] != 23424977) {
+      targetStates = getState(woeids);
+    }
+    // console.log("In buildTrendTbl.js in buildLocTable() function:  woeids and targetStates");
+    // console.log(woeids[0]);
+    // console.log(targetStates);
+
+    return targetStates; //replace with call to function that will  build demographic charts based on targetState argument 
   });
-});
+}
 
-// $("#table tr").click(function(){
-//   $(this).addClass('selected').siblings().removeClass('selected');    
-//   var value=$(this).find('td:first').html();
-//   alert(value);    
-// });
 
-// $('.ok').on('click', function(e){
-//    alert($("#table tr.selected td:first").html());
-// });
+function getState(woeids) {
 
-// // Allow viewer to filter based on datetime
-// // Select the submit button and prevent it from refreshing
-// var filter = d3.select("#filter-btn");
-//   filter.on("click", function() {
-//     d3.event.preventDefault();
+  // get location data from heroku
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const url = `https://geotweetapp.herokuapp.com/locations`;
 
-//     // Select the input element and get the value property of the input element
-//     var inputElement = d3.select("#datetime");
-//     var inputValue = inputElement.property("value");
+  d3.json(proxyurl + url, function (locationData) {
 
-//     var filteredData = tableData.filter(sighting => sighting.datetime === inputValue);
+    states = [];
 
-//     // Clear existing data  
-//     var clearData = [] ;
+    // iterate through incoming array of woeids and heroku locations. Pass state name to array where there's a match.
+    woeids.forEach((trending) => {
+      locationData.forEach((location) => {
+        if (location.woeid == trending) {
+          states.push(location.state_name_only)
+        }
+      });
+    });
 
-//     d3.select("tbody").selectAll("td")
-//       .data(clearData)
-//       .exit()
-//       .remove();
+    console.log("In buildTrendTbl.js in getState() function:  states");
+    console.log(states);
 
-//     // Repopulate with filtered data. 
-//     // Set tableData to filtered data set.
+    // Ok, this is the only place (inside this d3.json call)
+    // where we're guaranteed to get 'states' populated properly
+    // before making the call to create the demographics charts,
+    // so doing that from here
+    // NOTE: Without d3 v5 and promises, the return value
+    // from this function doesn't populate in time before it
+    // would be needed in demographics chart function... 
+    
+    // Load up the states demographics data as a list of objects
+    createAllDemographicsCharts(states);
 
-//     var newData = filteredData;
-//     console.log(newData)
-
-//     // Get a reference to the table body
-//     var tbody = d3.select("tbody");
-
-//     // Loop through data and append one table row `tr` for each object
-//     newData.forEach(function(sighting) {
-//     var row = tbody.append("tr");
-
-//       // Append data elements `td` for each object and enter data values
-//         Object.entries(sighting).forEach(([key, value]) => {
-//         var cell = tbody.append("td");
-//         cell.text(value);
-//       });
-//     });
-// });
+    return states;
+  });
+}

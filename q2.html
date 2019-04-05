@@ -28,10 +28,16 @@
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
 
+    <!-- <script type="text/javascript" src="static/js/eventHandling.js"></script> -->
     <script type="text/javascript" src="static/js/config.js"></script>
+
     <!-- Leaflet-Choropleth JavaScript -->
     <script type="text/javascript" src="./static/js/choropleth.js"></script>
     <link rel="stylesheet" href="static/css/style.css">
+    
+
+    <!-- Plotly JavaScript -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 </head>
 
@@ -82,9 +88,6 @@
             <!--THE MAP-->
             <!--########################################################################-->
             <div id="map"></div>
-            <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
-            <script type="text/javascript" src="static/js/locationSampleData.js"></script>
-            <script type="text/javascript" src="static/js/main-map.js"></script>
 
             <!--########################################################################-->
             <!-- THE TABLE -->
@@ -92,7 +95,7 @@
         </div>
 
         <div class="col-xs-4">
-            <div class="card card-title">Twitter Trends</div>
+            <div class="card card-title">Trending Tweets</div>
             <hr />
 
             <div class="card card-body\">
@@ -100,8 +103,8 @@
                     <thead>
                         <tr>
                             <th>Location</th>
-                            <th>WOEID</th>
-                            <th>Trending</th>
+                            <th>Tweet</th>
+                            <th>URL</th>
                             <th>Volume</th>
                         </tr>
                     </thead>
@@ -112,9 +115,48 @@
         </div>
     </div>
 
-    <!-- Build trending topics Table -->
-    <script src="static/js/minSampleData.js"></script>
-    <script src="static/js/buildTrendTbl.js"></script>
+    <div class=row>
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 0 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 0</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_0"></div>
+            </div>
+        </div>
+
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 1 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 1</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_1"></div>
+            </div>
+        </div>
+
+        <div class="col-xs-4">
+
+            <!--########################################################################-->
+            <!-- DEMOGRAPHICS CHART 2 -->
+            <!--########################################################################-->
+
+            <div class="card card-title">Demographics 2</div>
+            <hr>
+            <div class="card card-body">
+                <div id="demo_chart_2"></div>
+            </div>
+        </div>
+
+    </div>
+
 
     <!--Pager-->
     <div class="container">
@@ -130,6 +172,21 @@
         <div class="footer-copyright text-center py-3"> &copy;2019 | Alan Garbarino | Eugenio Gallastegui | Jeff Brown
         </div>
     </footer>
+
+  <!-- MOVED SCRIPT ELEMENT TO BOTTOM TO ENSURE OTHER ELEMENTS READY BEFORE SCRIPT NEEDS THEM -->
+    <!-- Build trending topics Table -->
+    <!-- <script src="static/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
+
+    <!-- Build trending topics Table look at spin.js library-->
+    <script src="static/js/trendLocations.js"></script> <!-- Added back to allow script to run -->
+    <script src="static/js/chicagoTrending.js"></script>
+    <script type="text/javascript" src="static/js/demographicsCharts.js"></script>   <!-- Functions to generate demographics charts -->
+    <script src="static/js/buildTrendTbl.js"></script>
+
+    <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
+  <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+  <script type="text/javascript" src="static/js/main-map.js"></script>
+    
 
 </body>
 
