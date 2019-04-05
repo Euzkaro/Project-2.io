@@ -93,9 +93,9 @@
             <!-- THE TABLE -->
             <!--########################################################################-->
         </div>
-
+4
         <div class="col-xs-4">
-            <div class="card card-title">Trending Tweets</div>
+            <div class="card card-title tweets">Trending Tweets</div>
             <hr />
 
             <div class="card card-body\">
@@ -157,6 +157,12 @@
 
     </div>
 
+    <!-- Build trending topics Table -->
+    <!-- <script src="static/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
+
+    <!-- Build trending topics Table look at spin.js library.-->
+    <!-- <script src="static/js/chicagoTrending.js"></script> -->
+    <script src="static/js/buildTrendTbl.js"></script>
 
     <!--Pager-->
     <div class="container">
@@ -174,17 +180,8 @@
     </footer>
 
   <!-- MOVED SCRIPT ELEMENT TO BOTTOM TO ENSURE OTHER ELEMENTS READY BEFORE SCRIPT NEEDS THEM -->
-    <!-- Build trending topics Table -->
-    <!-- <script src="static/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
-
-    <!-- Build trending topics Table look at spin.js library-->
-    <script src="static/js/trendLocations.js"></script> <!-- Added back to allow script to run -->
-    <script src="static/js/chicagoTrending.js"></script>
-    <script type="text/javascript" src="static/js/demographicsCharts.js"></script>   <!-- Functions to generate demographics charts -->
-    <script src="static/js/buildTrendTbl.js"></script>
-
-    <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
-  <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+  <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
+  <!-- <script type="text/javascript" src="static/js/locationSampleData.js"></script> -->
   <script type="text/javascript" src="static/js/main-map.js"></script>
     
 
