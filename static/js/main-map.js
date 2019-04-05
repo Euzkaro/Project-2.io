@@ -4,6 +4,7 @@ function createMap(trendLocMarkers) {
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
         maxZoom: 10,
+        minZoom:2,
         id: "mapbox.light",
         accessToken: API_KEY
     });
@@ -14,6 +15,7 @@ function createMap(trendLocMarkers) {
     var states = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
         maxZoom: 4,
+        minZoom:2,
         //minZoom:10,
         id: "mapbox.states",
         accessToken: API_KEY
@@ -60,7 +62,7 @@ function createMap(trendLocMarkers) {
         geojson = L.choropleth(data, {
 
             // Define what  property in the features to use
-            valueProperty: "Black",
+            valueProperty: "Democrat",
 
             // Set color scale  
             scale: ["#c60b0b", "#2b0bc6"],
@@ -68,6 +70,7 @@ function createMap(trendLocMarkers) {
             // Number of breaks in step range
             steps: 5,
             maxZoom: 10,
+            minZoom:2,
             // q for quartile, e for equidistant, k for k-means
             mode: "q",
             style: {
@@ -162,6 +165,7 @@ function createMap(trendLocMarkers) {
                 });
                 // Giving each feature a pop-up with information pertinent to it
                 layer.bindPopup("<h1>" + feature.properties.name +
+                    "<h4>" + "ranks: " + "<h3 style=\"color:#4E2A84\"><b>" + feature.properties.Twitter_rank + "/51 </b></h3> by number of active users in the US </h4>" +
                     "</h1> <hr> <p>Population: " +
                     feature.properties.Population +
                     "<br> Republican Voters (%): " + feature.properties.Republican +
@@ -175,9 +179,6 @@ function createMap(trendLocMarkers) {
                     // "<br> Natives (%): " + feature.properties.Native +
                     "<br> Unemployment (%): " + feature.properties.Unemployment +
                     "<br> Median Income Household ($): " + feature.properties.MHI +
-                    //'<br><iframe width="321px" height="548px" src="'+ feature.properties.image +'"></iframe>'+
-                    //'<br><iframe width="321px" height="548px" src="' + feature.properties.image + '"></iframe>' +
-
                     "</p>");
             }
         }).addTo(map);
@@ -263,7 +264,7 @@ function createMarkers(data) {
     // marker setup
     var BubbleIcon = L.Icon.extend({
         options: {
-            iconSize: [30, 50],
+            iconSize: [27, 27],
             iconAnchor: [15, 50],
             popupAnchor: [-3, -76]
         }
