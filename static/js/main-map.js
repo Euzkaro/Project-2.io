@@ -276,6 +276,7 @@ function createMarkers(data) {
     var blueIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Blue.png' });
     var azureIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Azure.png' });
     var orangeIcon = new BubbleIcon({ iconUrl: 'static/images//MapMarker_Bubble_Orange.png' });
+    var TwitterIcon = new BubbleIcon({iconUrl:'static/js/twitter-marker.png'});
 
     // Initialize an array to hold trend location markers
     var trendLocMarkers = [];
@@ -285,7 +286,7 @@ function createMarkers(data) {
         var location = data[index];
 
         // For each location, create a marker and bind a popup with the location name
-        var locationMarker = L.marker([location.latitude, location.longitude], { icon: greenIcon })
+        var locationMarker = L.marker([location.latitude, location.longitude], { icon: TwitterIcon })
             .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
             .on('click', d => {
 
