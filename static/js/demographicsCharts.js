@@ -1,20 +1,24 @@
 
-function createAllDemographicsCharts(a_state_list = ["Illinois"] ) {
+function createAllDemographicsCharts(a_state_list = ["Illinois"]) {
+    
+    console.log("In demographicsChart.js: createAllDemographicsCharts(): Preparing to chart for states:");
+    console.log(a_state_list);
+
     // Function to read all the demographics data into an array of objects and return it for others to use
     var statesDataURL = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
 
     d3.json(statesDataURL, d => {
-            // Get the data from the web repository
-            var data_list = d.features;
+        // Get the data from the web repository
+        var data_list = d.features;
 
-            console.log("In demographicsCharts.js - inside the d3.json(): statesDemoData is");
-            console.log("The data list from states demographic file on the web");
-            console.log(data_list);
-        
-            // Display the demographics charts
-            createDemographicsChart(data_list, "Republican", "HighSchool", a_state_list, 0); 
-            createDemographicsChart(data_list, "Republican", "Unemployment", a_state_list, 1); 
-            createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2); 
+        // console.log("In demographicsCharts.js - inside the d3.json(): statesDemoData is");
+        // console.log("The data list from states demographic file on the web");
+        // console.log(data_list);
+
+        // Display the demographics charts
+        createDemographicsChart(data_list, "Republican", "HighSchool", a_state_list, 0);
+        createDemographicsChart(data_list, "Republican", "Unemployment", a_state_list, 1);
+        createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2);
     });
 }
 
@@ -29,6 +33,9 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     //    a_x_key: Key for the x-axis data to plot
     //    a_state_list: Name of the state to use for the chart
     //    a_chart_index: The id of the chart to place the chart (e.g., "demo_chart_0") 
+
+    // console.log("In demographicsChart.js: createDemographicsChart(): Preparing to chart for states:");
+    // console.log(a_state_list);
 
     // Constants
     const stateAbbrs = {
@@ -143,11 +150,6 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     //     }
 
 
-    // Define scatter charts -- NOT DOING THIS!
-    // Type "A": Population (y) vs. Political Party is Democrat (x)
-    // Type "B": Max. Eduction is High School (y) vs. Political Party is Democrat (x)
-    // Type "C": Unemployment (y) vs. Political Party is Democrat (x)
-
     // Define the scatter chart based upon:
     // x-axis and y-axis factors provided in the arguments
 
@@ -156,81 +158,89 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     y_list = [];
     label_list = [];
 
-    // var statesDataURL = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
-
-    // d3.json(statesDataURL, d => {
-    //     // Get the data from the web repository
-    //     // console.log(d.features);
-    //     data_list = d.features;
-
-        // Use the data list passed into the function
-        data_list = a_data_list;
-
-        // Loop through each state for a match
-        data_list.forEach(s => {
-            // Only use this data item if the state matches one in the argument list of states
-            if (a_state_list.includes(s.properties['name'])) {
-                x_list.push(s.properties[a_x_value] * plotConfig[a_x_value]['scale_factor']);
-                y_list.push(s.properties[a_y_value] * plotConfig[a_y_value]['scale_factor']);
-                label_list.push(stateAbbrs[s.properties['name']]);
-
-            }
-        });
-
-        // Create the Trace
-        var trace1 = {
-            x: x_list,
-            y: y_list,
-            text: label_list,
-            textposition: 'center',
-            textfont: {
-                family: 'Arial, sans-serif',
-                weight: 600,
-                size: 15
-            },
-            mode: "markers+text",
-            type: "scatter",
-            marker: {
-                size: 40,
-                opacity: 0.5
-            }
-        };
-
-        // Create the data array for the plot
-        var data = [trace1];
-
-        // Define the plot layout
-        var layout = {
-            title: `${plotConfig[a_y_value]['axis_label']} vs. ${plotConfig[a_x_value]['axis_label']}`
-        };
-
-        // Set the max range base upon the data
-        if (isNaN(plotConfig[a_x_value]['max_range'])) {
-            // If no max range provided, set the range automatically based upon the data
-            // Range will be set automatically by Plotly
-            layout['xaxis'] = { title: `${plotConfig[a_x_value]['axis_label']}` };
-        } else {
-            // If max range provided, set the range accordingly
-            // Range will be [ -10, The larger of the specified rage value*1.2 or 100 ]
-            xMaxRange = Math.max(100, plotConfig[a_x_value]['max_range'] * 1.2);
-            layout['xaxis'] = { title: `${plotConfig[a_x_value]['axis_label']}`, range: [-10, xMaxRange] };
+    // Remove any entries that are not states in the demographics list
+    temp_list = []
+    a_state_list.forEach( s => {
+        // If this state is a key in the demographic list, keep it!
+        if (s in stateAbbrs) {
+            temp_list.push(s);
         }
+    });
+    a_state_list = temp_list;
 
-        // Set the max range base upon the data
-        if (isNaN(plotConfig[a_y_value]['max_range'])) {
-            // If no max range provided, set the range automatically based upon the data
-            // Range will be set automatically by Plotly
-            layout['yaxis'] = { title: `${plotConfig[a_y_value]['axis_label']}` };
-            console.log("Setting Y axis layout for an item with max_range = null ");
-            console.log(layout);
-        } else {
-            // If max range provided, set the range accordingly
-            // Range will be [ -10, The larger of the specified rage value*1.2 or 100 ]
-            yMaxRange = Math.max(100, plotConfig[a_y_value]['max_range'] * 1.2);
-            layout['yaxis'] = { title: `${plotConfig[a_y_value]['axis_label']}`, range: [-10, yMaxRange] };
+    // If the states list is empty, populate it with "Illinois"
+    if ( a_state_list.length == 0) {
+        a_state_list = [ "Illinois"];
+    }
+
+    // Use the data list passed into the function
+    data_list = a_data_list;
+
+    // Loop through each state for a match
+    data_list.forEach(s => {
+        // Only use this data item if the state matches one in the argument list of states
+        if (a_state_list.includes(s.properties['name'])) {
+            x_list.push(s.properties[a_x_value] * plotConfig[a_x_value]['scale_factor']);
+            y_list.push(s.properties[a_y_value] * plotConfig[a_y_value]['scale_factor']);
+            label_list.push(stateAbbrs[s.properties['name']]);
+
         }
+    });
 
-        // Plot the chart to a div tag with id chart_id
-        Plotly.newPlot(chart_id, data, layout);
-    // });
+    // Create the Trace
+    var trace1 = {
+        x: x_list,
+        y: y_list,
+        text: label_list,
+        textposition: 'center',
+        textfont: {
+            family: 'Arial, sans-serif',
+            weight: 600,
+            size: 15
+        },
+        mode: "markers+text",
+        type: "scatter",
+        marker: {
+            size: 40,
+            opacity: 0.5
+        }
+    };
+
+    // Create the data array for the plot
+    var data = [trace1];
+
+    // Define the plot layout
+    var layout = {
+        title: `${plotConfig[a_y_value]['axis_label']} vs. ${plotConfig[a_x_value]['axis_label']}`
+    };
+
+    // Set the max range base upon the data
+    if (isNaN(plotConfig[a_x_value]['max_range'])) {
+        // If no max range provided, set the range automatically based upon the data
+        // Range will be set automatically by Plotly
+        layout['xaxis'] = { title: `${plotConfig[a_x_value]['axis_label']}` };
+    } else {
+        // If max range provided, set the range accordingly
+        // Range will be [ -10, The larger of the specified rage value*1.2 or 100 ]
+        xMaxRange = Math.max(100, plotConfig[a_x_value]['max_range'] * 1.2);
+        layout['xaxis'] = { title: `${plotConfig[a_x_value]['axis_label']}`, range: [-10, xMaxRange] };
+    }
+
+    // Set the max range base upon the data
+    if (isNaN(plotConfig[a_y_value]['max_range'])) {
+        // If no max range provided, set the range automatically based upon the data
+        // Range will be set automatically by Plotly
+        layout['yaxis'] = { title: `${plotConfig[a_y_value]['axis_label']}` };
+        // console.log("Setting Y axis layout for an item with max_range = null ");
+        // console.log(layout);
+    } else {
+        // If max range provided, set the range accordingly
+        // Range will be [ -10, The larger of the specified rage value*1.2 or 100 ]
+        yMaxRange = Math.max(100, plotConfig[a_y_value]['max_range'] * 1.2);
+        layout['yaxis'] = { title: `${plotConfig[a_y_value]['axis_label']}`, range: [-10, yMaxRange] };
+    }
+
+    // Plot the chart to a div tag with id chart_id
+    Plotly.newPlot(chart_id, data, layout);
+
 }
