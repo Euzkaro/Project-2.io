@@ -331,14 +331,11 @@ function createMarkers(data) {
 };
 
 
+// Load up the states demographics data as a list of objects
+// createAllDemographicsCharts([ "Georgia", "Alabama", "Ohio", "Illinois", "Michigan", "California", "New York", "Texas" ]);
+
 // Retrieve data from sample data file and call marker function
 // var locationData = trendLocations;
-
-createDemographicsChart("Republican", "HighSchool", [ "Georgia", "Alabama", "Ohio" ], 0); 
-
-// createDemographicsChart("Republican", "Unemployment", [ "Georgia", "Alabama", "Ohio" ], 1); 
-
-// createDemographicsChart("Republican", "Population", [ "Georgia", "Alabama", "Ohio" ], 2); 
 
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const url = `https://geotweetapp.herokuapp.com/locations`;

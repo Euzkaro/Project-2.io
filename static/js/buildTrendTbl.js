@@ -36,10 +36,13 @@ function buildLocTable(woeid = 23424977) {
     woeids.push(woeid);
 
     //Call function to get state for event woeid if not default United States woeid
+    var targetStates = [];
     if (woeids[0] != 23424977) {
-      var targetStates = getState(woeids);
+      targetStates = getState(woeids);
     }
-    console.log(targetStates);
+    // console.log("In buildTrendTbl.js in buildLocTable() function:  woeids and targetStates");
+    // console.log(woeids[0]);
+    // console.log(targetStates);
 
     return targetStates; //replace with call to function that will  build demographic charts based on targetState argument 
   });
@@ -65,7 +68,20 @@ function getState(woeids) {
       });
     });
 
+    console.log("In buildTrendTbl.js in getState() function:  states");
     console.log(states);
+
+    // Ok, this is the only place (inside this d3.json call)
+    // where we're guaranteed to get 'states' populated properly
+    // before making the call to create the demographics charts,
+    // so doing that from here
+    // NOTE: Without d3 v5 and promises, the return value
+    // from this function doesn't populate in time before it
+    // would be needed in demographics chart function... 
+    
+    // Load up the states demographics data as a list of objects
+    createAllDemographicsCharts(states);
+
     return states;
   });
 }
