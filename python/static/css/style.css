@@ -60,6 +60,10 @@ html {
     color:#4E2A84;
 }
 
+.demographics_title {
+  padding: 20px;
+}
+
 .container-fluid {
     border-bottom:10px solid rgb(78, 42, 132);
 }

@@ -23,7 +23,7 @@ from sqlalchemy.sql.expression import func
 
 #Probably don't need these from SQLAlchemy: asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
 
-db_path_flask_app = "sqlite:///../data/twitter_trends.db"
+db_path_flask_app = "sqlite:///data/twitter_trends.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or db_path_flask_app
 
 # Flask-SQLAlchemy database
