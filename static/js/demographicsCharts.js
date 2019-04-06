@@ -1,5 +1,5 @@
 
-function createAllDemographicsCharts(a_state_list = ["Illinois"]) {
+function createAllDemographicsCharts(a_state_list) {
     
     console.log("In demographicsChart.js: createAllDemographicsCharts(): Preparing to chart for states:");
     console.log(a_state_list);
