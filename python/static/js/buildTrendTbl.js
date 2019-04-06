@@ -41,8 +41,9 @@ function buildLocTable(woeid = 23424977) {
         el.innerHTML = d.target.name;
         var trendid = d.target.getElementsByClassName('trendRow')[0].getAttribute('id');
 
-        // Update locations
-        getTweetLocations(trendid);
+        // Update locations - Jeff poking around where he shouldn't by adding
+        // the line below - commenting it out...
+        // getTweetLocations(trendid);
 
       });
 
