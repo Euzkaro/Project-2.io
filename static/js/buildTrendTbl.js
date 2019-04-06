@@ -2,9 +2,13 @@
 // Populate html table from data set
 
 // Initial build with default United States woeid
+states = [];
 buildLocTable();
 
+//######################################################################################
 // Build trend table
+
+
 function buildLocTable(woeid = 23424977) {
   const proxyurl = "https://cors-anywhere.herokuapp.com/";
   const url = `https://geotweetapp.herokuapp.com/trends/top/${woeid}`;
@@ -12,44 +16,88 @@ function buildLocTable(woeid = 23424977) {
 
   d3.json(proxyurl + url, function (tableData) {
 
+    console.log("Entering Building Trend Table");
+    console.log(woeid);
+
+    // var hdrUpdate = d3.select("#tweetHdr");
+    // console.log(hdrUpdate);
+    // hdrUpdate.innerHTML = tableData[0].twitter_name ;
+
     // Get a reference to the table body
     var tbody = d3.select("tbody");
 
     // Clear existing table data
-    tbody.html("");
+    tbody.html(""); 
 
     // Loop through data and append one table row `tr` for each object
     tableData.forEach((locTrend) => {
+      var tweetID = locTrend.twitter_tweet_query ;
       var row = tbody.append("tr");
+      row.attr('class','trendRow');
+      row.attr('id',tweetID);
+      row.on('click', d => {        
+                             
+        var el = document.createElement('html');
+        el.innerHTML = d.target.name;
+        var trendid = d.target.getElementsByClassName('trendRow')[0].getAttribute('id');
+
+   
+
+      });
+
 
       // Itereate through data and append data element `td` 
       // and data for data fields specified in the fields list above
       fields.forEach(f => {
         var cell = tbody.append("td");
-        cell.text(locTrend[f]);
+        var urlCheck = locTrend[f].toString().slice(0, 4) ;
+        if (urlCheck == "http") {   
+          link = cell.append("a");
+          link.attr('href', locTrend[f]);
+          link.attr('target', "_blank");
+          link.text(locTrend[f]);
+        } else {
+          cell.text(locTrend[f]);
+          cell.attr('id',tweetID);
+        }
       });
-
     });
+
+
+    // Get the element, add a click listener...
+    document.getElementById("trendTbl").addEventListener("click", function(e) {
+	  // e.target is the clicked element!
+    console.log("Trend Row", e.target.id, " was clicked!");
+
+    //get locations with this tweet trending to update map markers
+    getTweetLocations(e.target.id)
+
+  });
+
 
     //Push event location woeid to an array
     var woeids = [];
     woeids.push(woeid);
 
     //Call function to get state for event woeid if not default United States woeid
-    var targetStates = [];
+   
     if (woeids[0] != 23424977) {
-      targetStates = getState(woeids);
+      getState(woeids);
     } else {
-      targetStates = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
-      }
+      woeids = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
+      getState(woeids);
+    }
+    
     // console.log("In buildTrendTbl.js in buildLocTable() function:  woeids and targetStates");
     // console.log(woeids[0]);
     // console.log(targetStates);
 
-    return targetStates; //replace with call to function that will  build demographic charts based on targetState argument 
+    //  targetStates = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
+      
   });
 }
 
+//######################################################################################
 
 function getState(woeids) {
 
@@ -59,18 +107,22 @@ function getState(woeids) {
 
   d3.json(proxyurl + url, function (locationData) {
 
-    states = [];
+   states = [] ;
+   console.log("entering GetState");
+   console.log(woeids)
 
     // iterate through incoming array of woeids and heroku locations. Pass state name to array where there's a match.
     woeids.forEach((trending) => {
       locationData.forEach((location) => {
         if (location.woeid == trending) {
-          states.push(location.state_name_only)
-        }
+          if (states.includes(location.state_name_only)){
+          }
+          else {
+          states.push(location.state_name_only) ;       
+        }}
       });
     });
 
-    console.log("In buildTrendTbl.js in getState() function:  states");
     console.log(states);
 
     // Ok, this is the only place (inside this d3.json call)
@@ -86,4 +138,39 @@ function getState(woeids) {
 
     return states;
   });
+}
+
+//######################################################################################
+
+function getTweetLocations(tweetQuery){
+
+  // get locations where selected tweet trending from heroku
+  const proxyurl = "https://cors-anywhere.herokuapp.com/";
+  const url = `https://geotweetapp.herokuapp.com/locations/tweet/${tweetQuery}`;
+
+ console.log("entering GetTweetLocations");
+ console.log(tweetQuery);
+
+  d3.json(proxyurl + url, function(tableData) {
+
+    woeids = [] ;
+
+    // Iterate through results and get
+    // woeid information to build map and demographics
+    tableData.forEach((locTrend) => {
+      console.log(locTrend) ;
+      woeids.push(locTrend.woeid);
+    });
+    console.log(woeids);
+    // get state names and refresh demographics
+    getState(woeids);
+
+    // color map markers where for trending cities
+    colorMarkers(woeids);
+
+    console.log(states);
+    console.log(woeids);
+
+  });
+
 }
