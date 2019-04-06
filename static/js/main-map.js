@@ -3,7 +3,7 @@ function createMap(trendLocMarkers) {
     //Create the base layers that will be the background of our map
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
-        maxZoom: 10,
+        maxZoom: 4,
         minZoom:2,
         id: "mapbox.light",
         accessToken: API_KEY
@@ -14,7 +14,7 @@ function createMap(trendLocMarkers) {
 
     var states = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
-        maxZoom: 4,
+        maxZoom: 10,
         minZoom:2,
         //minZoom:10,
         id: "mapbox.states",
@@ -264,7 +264,7 @@ function createMarkers(data) {
     // marker setup
     var BubbleIcon = L.Icon.extend({
         options: {
-            iconSize: [27, 27],
+            iconSize: [25, 35],
             iconAnchor: [15, 50],
             popupAnchor: [-3, -76]
         }
