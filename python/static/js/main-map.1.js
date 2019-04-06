@@ -1,24 +1,31 @@
-function createMap(trendLocMarkers) {
+function createMap(trendLocMarker) {
+
+    console.log("entering CreateMap")
 
     //Create the base layers that will be the background of our map
-    var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
-        attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
-        maxZoom: 10,
-        id: "mapbox.light",
-        accessToken: API_KEY
-    });
+
+    // var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
+    //     attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
+    //     maxZoom: 10,
+    //     minZoom:2,
+    //     id: "mapbox.light",
+    //     accessToken: API_KEY
+    // });
+
 
     //var votes = createVoters();
-    
+
 
     var states = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
-        maxZoom: 4,
+
+        maxZoom: 10,
+        minZoom:2,
         //minZoom:10,
         id: "mapbox.states",
         accessToken: API_KEY
     });
-    
+
     // var demographics1 = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token={accessToken}", {
     //     attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>",
     //     maxZoom: 4,
@@ -29,26 +36,25 @@ function createMap(trendLocMarkers) {
 
     // Create a baseMaps object to hold the lightmap layer
     var baseMaps = {
-        "States": states,
-        "Light": lightmap
+        "States": states
         //"Voters": ChoroMap
-        
+
     };
 
     // Create an overlayMaps object to hold the trend location layer
     var overlayMaps = {
-        "Trend Locations": trendLocMarkers
-        
+        "Trend Locations": trendLocMarker
+
     };
 
     // Create the map object with options
-    var map = L.map("map", {
-        center: [39.381266, -97.922211],
+        map = L.map("map", {
+        center: [38.381266, -97.922211],
         zoom: 4,
-        layers: [states, trendLocMarkers]
+        layers: [states, trendLocMarker]
     });
 
-        //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
+    //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: true
     }).addTo(map);
@@ -60,14 +66,15 @@ function createMap(trendLocMarkers) {
         geojson = L.choropleth(data, {
 
             // Define what  property in the features to use
-            valueProperty: "Black",
+            valueProperty: "Democrat",
 
             // Set color scale  
             scale: ["#c60b0b", "#2b0bc6"],
 
             // Number of breaks in step range
             steps: 5,
-            maxZoom:10, 
+            maxZoom: 10,
+            minZoom:2,
             // q for quartile, e for equidistant, k for k-means
             mode: "q",
             style: {
@@ -77,11 +84,11 @@ function createMap(trendLocMarkers) {
                 fillOpacity: 0.8
             }
 
-        //     // Binding a pop-up to each layer
-        //         onEachFeature: function(feature, layer) {
-        //           layer.bindPopup("<h1>" + feature.properties.name + "</h1>" + "Population: " + feature.properties.Population + "<br> Democrat Voters:<br>" +
-        //              feature.properties.Democrat + "%");
-        //         }
+            //     // Binding a pop-up to each layer
+            //         onEachFeature: function(feature, layer) {
+            //           layer.bindPopup("<h1>" + feature.properties.name + "</h1>" + "Population: " + feature.properties.Population + "<br> Democrat Voters:<br>" +
+            //              feature.properties.Democrat + "%");
+            //         }
         }).addTo(map);
 
         // Set up the legend
@@ -130,9 +137,11 @@ function createMap(trendLocMarkers) {
     d3.json(statesData, function (data) {
         // Creating a geoJSON layer with the retrieved data
         L.geoJson(data, {
-            style: {fillOpacity : 0.0,
-            color: "white",
-            weight: 1},
+            style: {
+                fillOpacity: 0.0,
+                color: "white",
+                weight: 1
+            },
             // Called on each feature
             onEachFeature: function (feature, layer) {
                 // Set mouse events to change map styling
@@ -160,6 +169,7 @@ function createMap(trendLocMarkers) {
                 });
                 // Giving each feature a pop-up with information pertinent to it
                 layer.bindPopup("<h1>" + feature.properties.name +
+                    "<h4>" + "ranks: " + "<h3 style=\"color:#4E2A84\"><b>" + feature.properties.Twitter_rank + "/51 </b></h3> by number of active users in the US </h4>" +
                     "</h1> <hr> <p>Population: " +
                     feature.properties.Population +
                     "<br> Republican Voters (%): " + feature.properties.Republican +
@@ -172,7 +182,7 @@ function createMap(trendLocMarkers) {
                     // "<br> Latinos (%): " + feature.properties.Latino +
                     // "<br> Natives (%): " + feature.properties.Native +
                     "<br> Unemployment (%): " + feature.properties.Unemployment +
-                    '<br><iframe width="321px" height="548px" src="'+ feature.properties.image +'"></iframe>'+
+                    "<br> Median Income Household ($): " + feature.properties.MHI +
                     "</p>");
             }
         }).addTo(map);
@@ -247,37 +257,140 @@ function createMap(trendLocMarkers) {
 //     });
 //     return (votes);
 // };
+
+
 //######################################################################################
 function createMarkers(data) {
 
-    // Pull the "name" property off of data
-    //var locations = data.name;
+    console.log("entering CreateMarkers")
+    // marker setup
+    var BubbleIcon = L.Icon.extend({
+        options: {
+            iconSize: [27, 27],
+            iconAnchor: [20, 25],
+            popupAnchor: [-3, -26]
+        }
+    });
+
+    var TwitterIcon = new BubbleIcon({iconUrl:'static/js/twitter-marker.png'});
 
     // Initialize an array to hold trend location markers
-    var trendLocMarkers = [];
+    var trendLocList = [];
 
     // Loop through the sample location array
     for (var index = 0; index < data.length; index++) {
         var location = data[index];
 
         // For each location, create a marker and bind a popup with the location name
-        var locationMarker = L.marker([location.location_lat, location.location_long])
-            .bindPopup("<h3>" + location.name + "<h3><h3>WOEID: " + location.woeid + "<h3>");
+        var locationMarker = L.marker([location.latitude, location.longitude], { icon: TwitterIcon })
+            .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
+            .on('click', d => {
 
+                var el = document.createElement('html');
+                el.innerHTML = d.target._popup._container;
+                var woeid = d.target._popup._container.getElementsByClassName('locate')[0].getAttribute('id');
+
+                console.log(woeid);
+
+                buildLocTable(woeid);
+            });
+    
         // Add the marker to the location Markers array
-        trendLocMarkers.push(locationMarker);
-        console.log(trendLocMarkers);
-    }
+        trendLocList.push(locationMarker);
+        // console.log(trendLocMarkers);
+    };
 
     // Create a layer group made from the location markers array, pass it into the createMap function
-    createMap(L.layerGroup(trendLocMarkers));
+    trendLocMarker = L.layerGroup(trendLocList);
+    createMap(trendLocMarker); 
 };
 
+//######################################################################################
+
+function colorMarkers(trendingLocations) {
+
+    // Get all locations
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const url = `https://geotweetapp.herokuapp.com/locations`;
+
+    d3.json(proxyurl + url, function (allLocations) {
+        console.log("entering colorMarkers")
+
+        // marker setup
+        var BubbleIcon = L.Icon.extend({
+            options: {
+                iconSize: [27, 27],
+                iconAnchor: [20, 25],
+                popupAnchor: [-3, -26]
+            }
+        });
+
+        var greenIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Green.png' });
+        var whiteIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_White.png' });
+        var redIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Red.png' });
+        var blueIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Blue.png' });
+        var azureIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Azure.png' });
+        var orangeIcon = new BubbleIcon({ iconUrl: 'static/images//MapMarker_Bubble_Orange.png' });
+        var TwitterIcon = new BubbleIcon({iconUrl:'static/js/twitter-marker.png'});
+
+
+        // Initialize an array to hold trend location markers
+        map.removeLayer(trendLocMarker);
+
+        var trendLocNew = [];
+
+            console.log(trendLocNew);
+
+        // Loop through all locations
+        for (var index = 0; index < allLocations.length; index++) {
+            var location = allLocations[index];
+
+            if (trendingLocations.includes(location.woeid)) {
+                var setIcon = orangeIcon ;
+            } else {
+                var setIcon = TwitterIcon ;
+            }
+ 
+            // For each location, create a marker and bind a popup with the location name
+            var locationMarker = L.marker([location.latitude, location.longitude], { icon: setIcon })
+                .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
+                .on('click', d => {
+
+                    var el = document.createElement('html');
+                    el.innerHTML = d.target._popup._container;
+                    var woeid = d.target._popup._container.getElementsByClassName('locate')[0].getAttribute('id');
+                    
+                    console.log(woeid);
+                });
+
+            // Add the marker to the location Markers array
+            trendLocNew.push(locationMarker);
+            // console.log(trendLocMarkers);
+        };
+      
+        //Remove previous layer from map
+        trendLocMarker = L.layerGroup(trendLocNew);
+        map.addLayer(trendLocMarker);
+        buildLocTable();
+
+    
+        // Create a layer group made from the location markers array, pass it into the createMap function
+        //createMap(L.layerGroup(trendLocMarkers));
+    });
+};
+
+//######################################################################################
+// Load up the states demographics data as a list of objects
+// createAllDemographicsCharts([ "Georgia", "Alabama", "Ohio", "Illinois", "Michigan", "California", "New York", "Texas" ]);
+
 // Retrieve data from sample data file and call marker function
-var locationData = locationSampleData;
+// var locationData = trendLocations;
+var map = null;
+var trendLocMarker = null;
 
-createMarkers(locationData);
+const proxyurl = "https://cors-anywhere.herokuapp.com/";
+const url = `https://geotweetapp.herokuapp.com/locations`;
 
-
-
-
+d3.json(proxyurl + url, function (locationData) {
+    createMarkers(locationData);
+});
