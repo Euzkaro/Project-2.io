@@ -41,7 +41,7 @@ html {
 }
 
 .fixed_header thead {
-  background: black;
+  background:#4E2A84;
   color:#fff;
 }
 
@@ -60,13 +60,13 @@ html {
 .card-title {
     background: white ;
     font-size: 26px ;
-    color: black;
+    color:#4E2A84;
 }
 
 .card-title {
     background: white ;
     font-size: 26px ;
-    color: black;
+    color:#4E2A84;
 }
 
 .container-fluid {
@@ -111,7 +111,7 @@ p{
 }
 
 #main-map {
-    height: 500px;
+    height: 900px;
     width: 800px;
     position: static;
     padding: 70px;
