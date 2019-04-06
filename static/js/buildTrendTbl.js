@@ -39,7 +39,9 @@ function buildLocTable(woeid = 23424977) {
     var targetStates = [];
     if (woeids[0] != 23424977) {
       targetStates = getState(woeids);
-    }
+    } else {
+      targetStates = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
+      }
     // console.log("In buildTrendTbl.js in buildLocTable() function:  woeids and targetStates");
     // console.log(woeids[0]);
     // console.log(targetStates);
