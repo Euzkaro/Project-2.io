@@ -1,8 +1,60 @@
 
-function createAllDemographicsCharts(a_state_list = ["Illinois"]) {
-    
-    console.log("In demographicsChart.js: createAllDemographicsCharts(): Preparing to chart for states:");
-    console.log(a_state_list);
+function getLinearRegr(a_x_list, a_y_list) {
+    // Function to calculate the linear regression of the data
+    // Source: https://github.com/Tom-Alexander/regression-js
+
+    // Need at least 2 points to return a trend line
+    if (a_x_list.length < 2) {
+        // Only one point sent, so return an empty list
+        return [];
+    }
+
+    // Build the input array to the linear regression function as
+    // an array of coordinate point arrays
+
+    var coordList = [];
+    for (i = 0; i < a_x_list.length; ++i) {
+        coordList.push([a_x_list[i], a_y_list[i]]);
+    }
+    // console.log("Input Array: ", coordList);
+
+    // Calculate the linear regression
+    // Input Arguments:
+    // coordList: A list of [x, y] pairs over which the linear regresison will be calculated 
+
+    // Return Values:
+    // equation: an array containing the coefficients of the equation [slope, y-intercept]
+    // string: A string representation of the equation
+    // points: an array containing the predicted data in the domain of the input
+    // r2: the coefficient of determination (R2)
+    // predict(x): This function will return the predicted value as a coordinate point [x_input, y_predicted]
+    var result = regression.linear(coordList);
+
+    // console.log("Linear Regression:", result);
+
+    // Use the list of x-values to generate predicted
+    // y-values that define the trend line
+    var predicted_y_list = [];
+    for (i = 0; i < a_x_list.length; ++i) {
+        // Push a coordinate on the trend line to the trendLine list
+        // Note: the result.predict() function returns a coordinate [x, predicted_y]
+        // So grab just the predicted_y part.
+        predicted_y_list.push( (result.predict(a_x_list[i]))[1] );
+    }
+
+    // console.log("x-list and predicted y-list:");
+    // console.log(a_x_list);
+    // console.log(predicted_y_list);
+
+    return { 'x_list': a_x_list, 'predicted_y_list': predicted_y_list };
+}
+
+function createAllDemographicsCharts(a_state_list) {
+    // Function to display 3 demographics charts based upon a list of
+    // states names provided as arguments
+
+    // console.log("In demographicsChart.js: createAllDemographicsCharts(): Preparing to chart for states:");
+    // console.log(a_state_list);
 
     // Function to read all the demographics data into an array of objects and return it for others to use
     var statesDataURL = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
@@ -24,7 +76,7 @@ function createAllDemographicsCharts(a_state_list = ["Illinois"]) {
 
 
 function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list = ["Illinois"], a_chart_index = 0) {
-    // Function to draw a Demographics Chart based upon a selected
+    // Function to draw a DecreateDemographicsChartmographics Chart based upon a selected
     // location (or state?)
     //
     // Arguments:
@@ -160,7 +212,7 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
 
     // Remove any entries that are not states in the demographics list
     temp_list = []
-    a_state_list.forEach( s => {
+    a_state_list.forEach(s => {
         // If this state is a key in the demographic list, keep it!
         if (s in stateAbbrs) {
             temp_list.push(s);
@@ -169,8 +221,8 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     a_state_list = temp_list;
 
     // If the states list is empty, populate it with "Illinois"
-    if ( a_state_list.length == 0) {
-        a_state_list = [ "Illinois"];
+    if (a_state_list.length == 0) {
+        a_state_list = ["Illinois"];
     }
 
     // Use the data list passed into the function
@@ -191,6 +243,7 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     var trace1 = {
         x: x_list,
         y: y_list,
+        name: 'State Demographics',
         text: label_list,
         textposition: 'center',
         textfont: {
@@ -206,12 +259,52 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
         }
     };
 
+
     // Create the data array for the plot
     var data = [trace1];
 
+    // Generate a trend line if at least 2 data points
+    // (Maybe minimum should be 3 data points for this to be interesting...)
+
+    if (x_list.length > 1) {
+        // Get a list of x and predicted y values based
+        // upon linear regression of the x and y values
+        // Returns: { 'x_list': a_x_list, 'predicted_y_list': predicted_y_list }
+        var results = getLinearRegr(x_list, y_list);
+
+        // Create the Trace
+        var trace_trend = {
+            x: results.x_list,
+            y: results.predicted_y_list,
+            name: 'Linear Trend Line',
+            textfont: {
+                family: 'Arial, sans-serif',
+                weight: 600,
+                size: 15
+            },
+            mode: "lines",
+            line: {
+                color: 'blue',
+                opacity: 0.5,
+                width: 3,
+                dash: 'dot'
+            }
+        };
+
+        data.push(trace_trend);
+    }
+
+    // console.log("In demographicsCharts.js: createDemographicsChart(): trace_trend");
+    // console.log(data);
+
     // Define the plot layout
     var layout = {
-        title: `${plotConfig[a_y_value]['axis_label']} vs. ${plotConfig[a_x_value]['axis_label']}`
+        title: `${plotConfig[a_y_value]['axis_label']} vs. ${plotConfig[a_x_value]['axis_label']}`,
+        showlegend: true,
+        legend: {
+            "orientation": "h",
+            x: 0.1, y: -0.3
+        }
     };
 
     // Set the max range base upon the data
@@ -239,6 +332,9 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
         yMaxRange = Math.max(100, plotConfig[a_y_value]['max_range'] * 1.2);
         layout['yaxis'] = { title: `${plotConfig[a_y_value]['axis_label']}`, range: [-10, yMaxRange] };
     }
+
+    // console.log("In demographicsCharts.js: layout");
+    // console.log(layout);
 
     // Plot the chart to a div tag with id chart_id
     Plotly.newPlot(chart_id, data, layout);

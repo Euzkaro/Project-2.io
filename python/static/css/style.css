@@ -11,8 +11,17 @@ html {
     object-fit: cover;
     max-height: 80px !important;
 
-
   }
+
+.fixed_header{
+  text-align: right ;
+  font-weight: bold ;
+}
+
+.href{
+    color: blue;
+    text-decoration: underline
+}
 
 .fixed_header{
     width: 470px;
@@ -58,6 +67,10 @@ html {
     background: white ;
     font-size: 26px ;
     color:#4E2A84;
+}
+
+.demographics_title {
+  padding: 20px;
 }
 
 .container-fluid {
