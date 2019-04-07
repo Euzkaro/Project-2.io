@@ -9,6 +9,10 @@
 import os
 from flask import Flask, render_template, jsonify, request, redirect
 
+# Import Flask_CORS extension to enable Cross Origin Resource Sharing (CORS)
+# when deployed on Heroku
+from flask_cors import CORS
+
 #################################################
 # Flask Setup
 #################################################
@@ -16,6 +20,9 @@ app = Flask(__name__)
 
 # Enable Tracking of Flask-SQLAlchemy events for now (probably not needed)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+# Provide cross origin resource sharing
+CORS(app)
 
 #################################################
 # Database Setup
