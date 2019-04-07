@@ -14,6 +14,9 @@ from flask import Flask, render_template, jsonify, request, redirect
 #################################################
 app = Flask(__name__)
 
+# Enable Tracking of Flask-SQLAlchemy events for now (probably not needed)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 #################################################
 # Database Setup
 #################################################
