@@ -65,6 +65,7 @@
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav navbar-right">
+                    <!-- Need to use href="/" so that Flask/Heroku will route back to home page => index.html -->
                     <li><a class="active" href="/">GeoTweet</a></li>
                     <!--li class="dropdown"-->
                     <li><a href="https://github.com/Euzkaro/Project-2.io">Documentation</a></li>
@@ -122,7 +123,7 @@
             <!-- DEMOGRAPHICS CHART 0 -->
             <!--########################################################################-->
 
-            <div class="card card-title">Demographics 0</div>
+            <div class="card card-title demographics_title">Demographics 0</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_0"></div>
@@ -135,7 +136,7 @@
             <!-- DEMOGRAPHICS CHART 1 -->
             <!--########################################################################-->
 
-            <div class="card card-title">Demographics 1</div>
+            <div class="card card-title demographics_title">Demographics 1</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_1"></div>
@@ -148,7 +149,7 @@
             <!-- DEMOGRAPHICS CHART 2 -->
             <!--########################################################################-->
 
-            <div class="card card-title">Demographics 2</div>
+            <div class="card card-title demographics_title">Demographics 2</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_2"></div>
@@ -178,18 +179,23 @@
     <!-- <script src="static/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
 
     <!-- Build trending topics Table look at spin.js library-->
-    <script type="text/javascript" src="static/js/trendLocations.js"></script>
 
-    <!-- Added back to allow script to run -->
-
-    <!-- <script type="text/javascript" src="static/js/chicagoTrending.js"></script> -->
-    <script type="text/javascript" src="static/js/demographicsCharts.js"></script>
+    <!-- Added these local test data files back previosly to avoid errors - removing now -->
+    <!-- <script src="static/js/trendLocations.js"></script> -->
+    <!-- <script src="static/js/chicagoTrending.js"></script> -->
 
     <!-- Functions to generate demographics charts -->
+    <script type="text/javascript" src="static/js/demographicsCharts.js"></script>
     <script type="text/javascript" src="static/js/buildTrendTbl.js"></script>
 
     <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
     <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+
+    <!-- Function to perform linear regression on a dataset
+         Source: https://github.com/Tom-Alexander/regression-js
+    -->
+    <script type="text/javascript" src="static/js/regression.min.js"></script>
+
     <script type="text/javascript" src="static/js/main-map.js"></script>
 
 

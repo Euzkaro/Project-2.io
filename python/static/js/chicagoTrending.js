@@ -1,0 +1,32 @@
+var chicagoTrending = [
+    {
+        Location:"Chicago",
+        twitter_tweet_name:"Carolina",
+        twitter_tweet_url:"http://twitter.com/search?q=Carolina",
+        twitter_tweet_volume:75729.0
+    },
+    {
+        twitter_name:"Chicago",
+        twitter_tweet_name:"Auburn",
+        twitter_tweet_url:"http://twitter.com/search?q=Auburn",
+        twitter_tweet_volume:57739.0
+    },
+    {
+        twitter_name:"Chicago",
+        twitter_tweet_name:"#RockHall2019",
+        twitter_tweet_url:"http://twitter.com/search?q=%23RockHall2019",
+        twitter_tweet_volume:30707.0
+    },
+    {
+        twitter_name:"Chicago",
+        twitter_tweet_name:"Elite 8",
+        twitter_tweet_url:"http://twitter.com/search?q=%22Elite+8%22",
+        twitter_tweet_volume:21049.0
+    },
+    {
+        twitter_name:"Chicago",
+        twitter_tweet_name:"#Ultra2019",
+        twitter_tweet_url:"http://twitter.com/search?q=%23Ultra2019",
+        twitter_tweet_volume:17198.0
+    }        
+];
