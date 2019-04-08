@@ -38,13 +38,11 @@ function createMap(trendLocMarker) {
     var baseMaps = {
         "States": states
         //"Voters": ChoroMap
-
     };
 
     // Create an overlayMaps object to hold the trend location layer
     var overlayMaps = {
         "Trend Locations": trendLocMarker
-
     };
 
     // Create the map object with options
@@ -267,7 +265,7 @@ function createMarkers(data) {
     var BubbleIcon = L.Icon.extend({
         options: {
             iconSize: [27, 27],
-            iconAnchor: [20, 25],
+            iconAnchor: [20, 20],
             popupAnchor: [-3, -26]
         }
     });
@@ -307,9 +305,9 @@ function createMarkers(data) {
 
 //######################################################################################
 
-function colorMarkers(trendingLocations) {
+function colorMarkers(trendingLocations, tweetName) {
 
-    // Get all locations
+    // Get location data - need lat long to build trending loc markers
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const url = `https://geotweetapp.herokuapp.com/locations`;
 
@@ -320,64 +318,55 @@ function colorMarkers(trendingLocations) {
         var BubbleIcon = L.Icon.extend({
             options: {
                 iconSize: [27, 27],
-                iconAnchor: [20, 25],
+                iconAnchor: [20, 20],
                 popupAnchor: [-3, -26]
             }
         });
 
-        var greenIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Green.png' });
-        var whiteIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_White.png' });
-        var redIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Red.png' });
-        var blueIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Blue.png' });
-        var azureIcon = new BubbleIcon({ iconUrl: 'static/images/MapMarker_Bubble_Azure.png' });
-        var orangeIcon = new BubbleIcon({ iconUrl: 'static/images//MapMarker_Bubble_Orange.png' });
+        var greenIcon = new BubbleIcon({ iconUrl: 'static/js/green-twitter-marker.png' });
+        var redIcon = new BubbleIcon({ iconUrl: 'static/js/red-twitter-marker.png' });
+        var azureIcon = new BubbleIcon({ iconUrl: 'static/js/azure-twitter-marker.png' });
+        var purpleIcon = new BubbleIcon({ iconUrl: 'static/js/purple-twitter-marker.png' });
         var TwitterIcon = new BubbleIcon({iconUrl:'static/js/twitter-marker.png'});
 
 
         // Initialize an array to hold trend location markers
-        map.removeLayer(trendLocMarker);
-
-        var trendLocNew = [];
-
-            console.log(trendLocNew);
+        var trendLocList = [];
 
         // Loop through all locations
         for (var index = 0; index < allLocations.length; index++) {
             var location = allLocations[index];
 
             if (trendingLocations.includes(location.woeid)) {
-                var setIcon = orangeIcon ;
-            } else {
-                var setIcon = TwitterIcon ;
-            }
  
-            // For each location, create a marker and bind a popup with the location name
-            var locationMarker = L.marker([location.latitude, location.longitude], { icon: setIcon })
-                .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
-                .on('click', d => {
+                // For each trending location, create a marker and bind a popup with the location name
+                var locationMarker = L.marker([location.latitude, location.longitude], { icon:greenIcon })
+                    .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate2\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
+                    .on('click', d => {
 
-                    var el = document.createElement('html');
-                    el.innerHTML = d.target._popup._container;
-                    var woeid = d.target._popup._container.getElementsByClassName('locate')[0].getAttribute('id');
-                    
-                    console.log(woeid);
-                });
+                        var el = document.createElement('html');
+                        el.innerHTML = d.target._popup._container;
+                        var woeid = d.target._popup._container.getElementsByClassName('locate2')[0].getAttribute('id');
 
-            // Add the marker to the location Markers array
-            trendLocNew.push(locationMarker);
-            // console.log(trendLocMarkers);
+                        buildLocTable(woeid);
+                    });
+
+                // Add the marker to the location Markers array
+                trendLocList.push(locationMarker);
+            }
         };
       
-        //Remove previous layer from map
-        trendLocMarker = L.layerGroup(trendLocNew);
-        map.addLayer(trendLocMarker);
-        buildLocTable();
+        //Add layer to map
+        if(map.hasLayer(trendLocLayer)){
+            map.removeLayer(trendLocLayer);
+        }
 
+        trendLocLayer = L.layerGroup(trendLocList);
+
+        map.addLayer(trendLocLayer);
     
-        // Create a layer group made from the location markers array, pass it into the createMap function
-        //createMap(L.layerGroup(trendLocMarkers));
     });
-};
+}
 
 //######################################################################################
 // Load up the states demographics data as a list of objects
@@ -387,6 +376,7 @@ function colorMarkers(trendingLocations) {
 // var locationData = trendLocations;
 var map = null;
 var trendLocMarker = null;
+var trendLocLayer = null;
 
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const url = `https://geotweetapp.herokuapp.com/locations`;

@@ -84,16 +84,14 @@ function buildLocTable(woeid = 23424977) {
     if (woeids[0] != 23424977) {
       getState(woeids);
     } else {
-      woeids = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
+        woeids = [2442047, 2357024, 2379574, 2459115, 2424766, 2450022, 2458833, 2391279, 2367105];
       getState(woeids);
     }
     
     // console.log("In buildTrendTbl.js in buildLocTable() function:  woeids and targetStates");
     // console.log(woeids[0]);
     // console.log(targetStates);
-
-    //  targetStates = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
-      
+   
   });
 }
 
@@ -116,9 +114,11 @@ function getState(woeids) {
       locationData.forEach((location) => {
         if (location.woeid == trending) {
           if (states.includes(location.state_name_only)){
-          }
-          else {
-          states.push(location.state_name_only) ;       
+            console.log("dup identified") ;
+            // don't do anything, this would create a dupe in states
+          }else {
+            states.push(location.state_name_only) ;  
+            console.log("adding to states")  ;   
         }}
       });
     });
@@ -153,6 +153,7 @@ function getTweetLocations(tweetQuery){
 
   d3.json(proxyurl + url, function(tableData) {
 
+    tweetName = tableData[0].twitter_tweet_name ;
     woeids = [] ;
 
     // Iterate through results and get
@@ -166,7 +167,7 @@ function getTweetLocations(tweetQuery){
     getState(woeids);
 
     // color map markers where for trending cities
-    colorMarkers(woeids);
+    colorMarkers(woeids, tweetName);
 
     console.log(states);
     console.log(woeids);
