@@ -66,15 +66,16 @@ function buildLocTable(woeid = 23424977) {
     });
 
 
-    // // Get the element, add a click listener...
-    // document.getElementById("trendTbl").addEventListener("click", function (e) {
-    //   // e.target is the clicked element!
-    //   console.log("Trend Row", e.target.id, " was clicked!");
+    // Get the element, add a click listener...
+    document.getElementById("trendTbl").addEventListener("click", function (e) {
+      // e.target is the clicked element!
+      console.log("Trend Row", e.target.id, " was clicked!");
 
-    //   //get locations with this tweet trending to update map markers
-    //   getTweetLocations(e.target.id)
+      //get locations with this tweet trending to update map markers
+      console.log(e.target.id) ;
+      getTweetLocations(e.target.id)
 
-    });
+  });
 
 
     //Push event location woeid to an array
@@ -107,7 +108,7 @@ function buildLocTable(woeid = 23424977) {
 
     //  targetStates = ["California", "Georgia", "Montana", "Colorado", "Illinois", "Florida", "Oregon", "Texas", "New York"];
 
-  // });
+  });
 }
 
 //######################################################################################
@@ -129,8 +130,8 @@ function getState(woeids) {
       locationData.forEach((location) => {
         if (location.woeid == trending) {
           if (states.includes(location.state_name_only)) {
-          }
-          else {
+
+          } else {
             states.push(location.state_name_only);
           }
         }
@@ -167,6 +168,7 @@ function getTweetLocations(tweetQuery) {
 
   d3.json(proxyurl + url, function (tableData) {
 
+    tweetName = tableData[0].twitter_tweet_name ;
     woeids = [];
 
     // Iterate through results and get
@@ -180,11 +182,12 @@ function getTweetLocations(tweetQuery) {
     getState(woeids);
 
     // color map markers where for trending cities
-    colorMarkers(woeids);
+    console.log(tweetName);
+    console.log(woeids);
+    colorMarkers(woeids, tweetName);
 
     console.log(states);
     console.log(woeids);
 
   });
-
 }
