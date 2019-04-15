@@ -53,8 +53,8 @@ function createMap(trendLocMarker) {
     });
 
     //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: true
+    layerControl = L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
     }).addTo(map);
 
     var statesData = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
@@ -265,7 +265,7 @@ function createMarkers(data) {
     var BubbleIcon = L.Icon.extend({
         options: {
             iconSize: [27, 27],
-            iconAnchor: [20, 25],
+            iconAnchor: [20, 20],
             popupAnchor: [-3, -26]
         }
     });
@@ -328,6 +328,17 @@ function colorMarkers(trendingLocations, tweetName) {
         var purpleIcon = new BubbleIcon({ iconUrl: '../static/images/purple-twitter-marker.png' });
         var TwitterIcon = new BubbleIcon({iconUrl:'../static/js/twitter-marker.png'});
 
+        // console.log(colorTracker);
+
+        // if (colorTracker == 0) {
+        //     activeIcon = greenIcon ;
+        // } else if (colorTracker == 1) {
+        //     activeIcon = redIcon ;
+        // } else if (colorTracker == 2) {
+        //     activeIcon = purpleIcon ;
+        // }
+        // console.log(activeIcon) ;
+
         // Initialize an array to hold trend location markers
         var trendLocList = [];
 
@@ -338,7 +349,7 @@ function colorMarkers(trendingLocations, tweetName) {
             if (trendingLocations.includes(location.woeid)) {
  
             // For each trending location, create a marker and bind a popup with the location name
-            var locationMarker = L.marker([location.latitude, location.longitude], { icon: greenIcon })
+            var locationMarker = L.marker([location.latitude, location.longitude], {icon: greenIcon })
                 .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate2\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
                 .on('click', d => {
 
@@ -346,20 +357,56 @@ function colorMarkers(trendingLocations, tweetName) {
                     el.innerHTML = d.target._popup._container;
                     var woeid = d.target._popup._container.getElementsByClassName('locate2')[0].getAttribute('id');
                     
-                    buildLocTable(woeid);
+                    //buildLocTable(woeid);
                 });
 
-            // Add the marker to the location Markers array
-            trendLocList.push(locationMarker);
-        }    
-    };
+                // Add the marker to the location Markers array
+                trendLocList.push(locationMarker);
+            }    
+        };
+            // overflowFlag = 0 ;
+            // console.log(clickedTrends) ;
 
-    //Add layer to map
-    if(map.hasLayer(trendLocLayer)){
-        map.removeLayer(trendLocLayer);
-    }
-        trendLocLayer = L.layerGroup(trendLocList);
-        map.addLayer(trendLocLayer);
+            // Add tweet as overlay layer on map if not already present and limit active trends to 3
+            if (clickedTrends.includes(tweetName)) {
+                // do nothing (don't add a trend that's already represented in layers)
+                } else {
+                    trendLocLayer2 = L.layerGroup(trendLocList).addTo(map);
+                    layerControl.addOverlay(trendLocLayer2,tweetName).addTo(map);
+                }
+                    // if (clickedTrends.length == 3) {
+                    //     overflowFlag = 1;
+                    //     layerControl.removeLayer(trendLocLayer0,clickedTrends[0]);
+                    //     clickedTrends = [clickedTrends[1], clickedTrends[2]];
+                    //     console.log(clickedTrends);
+                    // }
+
+                    // if (colorTracker == 0){
+                    //         console.log("add level 0") ;
+                    //         trendLocLayer0 = L.layerGroup(trendLocList);
+                    //         layerControl.addOverlay(trendLocLayer0,tweetName).addTo(map);
+                    //     } else if(colorTracker == 1){
+                    //         console.log("add level 1") ;
+                    //         trendLocLayer1 = L.layerGroup(trendLocList);
+                    //         layerControl.addOverlay(trendLocLayer1,tweetName).addTo(map);
+                    //     } else {
+                    //         console.log("add level 2") ;
+                    //         trendLocLayer2 = L.layerGroup(trendLocList);
+                    //         layerControl.addOverlay(trendLocLayer2,tweetName).addTo(map);
+                    //     }
+
+                    clickedTrends.push(tweetName);
+
+                    // if (overflowFlag == 0){
+                    //     colorTracker = colorTracker + 1 ;
+                    // } 
+                    // else {
+                    //     colorTracker = 3 % colorTracker.length;
+                    //     console.log(colorTracker);
+                    // }
+  
+                // }
+
     });
 }
 
@@ -372,6 +419,11 @@ function colorMarkers(trendingLocations, tweetName) {
 var map = null;
 var trendLocMarker = null;
 var trendLocLayer = null;
+//var overlayMaps = null;
+//var baseMaps = null;
+//var layerControl = null;
+var clickedTrends = [] ;
+var colorTracker = 0 ;
 
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const url = `https://geotweetapp.herokuapp.com/locations`;
