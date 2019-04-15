@@ -61,16 +61,17 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Data Science Project 2</a>
+                <a class="navbar-brand">Data Science Project 2</a>
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a class="active" href="index.html">GeoTweet</a></li>
+                    <!-- Need to use href="/" so that Flask/Heroku will route back to home page => index.html -->
+                    <li><a class="active" href="/">GeoTweet</a></li>
                     <!--li class="dropdown"-->
-                    <li><a href="q1.html">Question 1</a></li>
-                    <li><a href="q2.html">Trend by Location</a></li>
+                    <li><a href="https://github.com/Euzkaro/Project-2.io">Documentation</a></li>
+                    <!-- <li><a href="q2.html">Trend by Location</a></li>
                     <li><a href="q3.html">Location by Trend</a></li>
-                    <li><a href="q4.html">Question 4</a></li>
+                    <li><a href="q4.html">Question 4</a></li> -->
                 </ul>
             </div>
         </div>
@@ -135,7 +136,7 @@
             <!-- DEMOGRAPHICS CHART 1 -->
             <!--########################################################################-->
 
-            <div class="card card-title">Demographics 1</div>
+            <div class="card card-title demographics_title">Demographics 1</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_1"></div>
@@ -148,7 +149,7 @@
             <!-- DEMOGRAPHICS CHART 2 -->
             <!--########################################################################-->
 
-            <div class="card card-title">Demographics 2</div>
+            <div class="card card-title demographics_title">Demographics 2</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_2"></div>
@@ -161,8 +162,8 @@
     <!--Pager-->
     <div class="container">
         <ul class="pager">
-            <li><a href="q1.html">Previous</a></li>
-            <li><a href="q3.html">Next</a></li>
+            <!--li><a href="q1.html">Previous</a></li-->
+            <li><a href="https://github.com/Euzkaro/Project-2.io">Documentation</a></li>
         </ul>
     </div>
 
@@ -178,16 +179,24 @@
     <!-- <script src="static/python/js/minSampleData.js"></script> // Removed while merging pull_data_jab -->
 
     <!-- Build trending topics Table look at spin.js library-->
+    
+    <!-- Added these local test data files back previosly to avoid errors - removing now -->
     <!-- <script src="../static/js/trendLocations.js"></script> Added back to allow script to run -->
     <!-- <script src="static/python/js/chicagoTrending.js"></script> -->
-    <script type="text/javascript" src="../static/js/demographicsCharts.js"></script>   <!-- Functions to generate demographics charts -->
-    <script src="../static/js/buildTrendTbl.js"></script>
-
     <!-- <script type="text/javascript" src="./static/python/data/statesData.js"></script> -->
-  <!-- <script type="text/javascript" src="static/python/js/locationSampleData.js"></script> -->
-  <script type="text/javascript" src="../static/js/main-map.js"></script>
+    <!-- <script type="text/javascript" src="static/python/js/locationSampleData.js"></script> -->
     
+    <!-- Functions to generate demographics charts -->
+    <script type="text/javascript" src="../static/js/demographicsCharts.js"></script>   <!-- Functions to generate demographics charts -->
+    <script type="text/javascript" src="../static/js/buildTrendTbl.js"></script>
 
+    <!-- Function to perform linear regression on a dataset
+         Source: https://github.com/Tom-Alexander/regression-js
+    -->
+
+    <script type="text/javascript" src="../static/js/regression.min.js"></script>
+    <script type="text/javascript" src="../static/js/main-map.js"></script>
+    
 </body>
 
 </html>
