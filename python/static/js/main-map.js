@@ -53,8 +53,8 @@ function createMap(trendLocMarker) {
     });
 
     //   Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: true
+    layerControl = L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
     }).addTo(map);
 
     var statesData = "https://raw.githubusercontent.com/Euzkaro/project2.io/master/state-demgraphics.json"
@@ -265,7 +265,7 @@ function createMarkers(data) {
     var BubbleIcon = L.Icon.extend({
         options: {
             iconSize: [27, 27],
-            iconAnchor: [20, 25],
+            iconAnchor: [20, 20],
             popupAnchor: [-3, -26]
         }
     });
@@ -346,7 +346,7 @@ function colorMarkers(trendingLocations, tweetName) {
                     el.innerHTML = d.target._popup._container;
                     var woeid = d.target._popup._container.getElementsByClassName('locate2')[0].getAttribute('id');
                     
-                    buildLocTable(woeid);
+                    //buildLocTable(woeid);
                 });
 
             // Add the marker to the location Markers array
@@ -354,12 +354,16 @@ function colorMarkers(trendingLocations, tweetName) {
         }    
     };
 
-    //Add layer to map
-    if(map.hasLayer(trendLocLayer)){
-        map.removeLayer(trendLocLayer);
-    }
-        trendLocLayer = L.layerGroup(trendLocList);
-        map.addLayer(trendLocLayer);
+    // Add tweet as overlay layer on map if not already present 
+    if (clickedTrends.includes(tweetName)) {
+        // do nothing (don't add a trend that's already represented in layers)
+        } else {
+            trendLocLayer = L.layerGroup(trendLocList).addTo(map);
+            layerControl.addOverlay(trendLocLayer,tweetName).addTo(map);
+        }
+
+        clickedTrends.push(tweetName);
+
     });
 }
 
@@ -372,6 +376,7 @@ function colorMarkers(trendingLocations, tweetName) {
 var map = null;
 var trendLocMarker = null;
 var trendLocLayer = null;
+var clickedTrends = [];
 
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const url = `https://geotweetapp.herokuapp.com/locations`;

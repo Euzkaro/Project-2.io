@@ -29,11 +29,11 @@
         crossorigin=""></script>
 
     <!-- <script type="text/javascript" src="static/js/eventHandling.js"></script> -->
-    <script type="text/javascript" src="static/js/config.js"></script>
+    <script type="text/javascript" src="../static/js/config.js"></script>
 
     <!-- Leaflet-Choropleth JavaScript -->
-    <script type="text/javascript" src="./static/js/choropleth.js"></script>
-    <link rel="stylesheet" href="static/css/style.css">
+    <script type="text/javascript" src="../static/js/choropleth.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css">
 
 
     <!-- Plotly JavaScript -->
@@ -47,7 +47,7 @@
 
     <!--Header-->
     <header>
-        <img class="img-theme" src="static/images/sps_horizontal_logo.gif">
+        <img class="img-theme" src="../static/images/sps_horizontal_logo.gif">
     </header>
 
     <!--Navbar & Toggle-->
@@ -79,7 +79,7 @@
 
     <div class="container">
         <h2>GeoTweet: Find what's trending by location</h2>
-        <h3>Click on a city marker to start!</h3>
+        <h3>Click on a city marker or tweet to start!</h3>
     </div>
     </div>
 
@@ -109,7 +109,7 @@
                             <th>Volume</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="trendTbl">
                     </tbody>
                 </table>
             </div>
@@ -185,18 +185,18 @@
     <!-- <script src="static/js/chicagoTrending.js"></script> -->
 
     <!-- Functions to generate demographics charts -->
-    <script type="text/javascript" src="static/js/demographicsCharts.js"></script>
-    <script type="text/javascript" src="static/js/buildTrendTbl.js"></script>
+    <script type="text/javascript" src="../static/js/demographicsCharts.js"></script>
+    <script type="text/javascript" src="../static/js/buildTrendTbl.js"></script>
 
     <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
-    <script type="text/javascript" src="static/js/locationSampleData.js"></script>
+    <script type="text/javascript" src="../static/js/locationSampleData.js"></script>
 
     <!-- Function to perform linear regression on a dataset
          Source: https://github.com/Tom-Alexander/regression-js
     -->
-    <script type="text/javascript" src="static/js/regression.min.js"></script>
+    <script type="text/javascript" src="../static/js/regression.min.js"></script>
 
-    <script type="text/javascript" src="static/js/main-map.js"></script>
+    <script type="text/javascript" src="../static/js/main-map.js"></script>
 
 
 </body>
