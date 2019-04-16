@@ -33,7 +33,7 @@ html {
   display:block;
   width: 100%;
   overflow: auto;
-  height: 200px;
+  height: 250px;
 }
 
 .fixed_header thead tr {
@@ -46,22 +46,10 @@ html {
 }
 
 .fixed_header th, .fixed_header td {
-  padding: 5px;
-  text-align: left;
-  width: 470px;
-}
-
-.fixed_header th, .fixed_header td {
     padding: 5px;
-    text-align: left;
+    text-align: center;
     width: 470px;
   }
-
-.card-title {
-    background: white ;
-    font-size: 26px ;
-    color:#4E2A84;
-}
 
 .card-title {
     background: white ;
@@ -167,8 +155,6 @@ p{
   float: right;
 }
 /* choropleth */
-
-
 
 footer {
     background-color: #777;

@@ -18,10 +18,11 @@ function buildLocTable(woeid = 23424977) {
 
     console.log("Entering Building Trend Table");
     console.log(woeid);
-
-    // var hdrUpdate = d3.select("#tweetHdr");
-    // console.log(hdrUpdate);
-    // hdrUpdate.innerHTML = tableData[0].twitter_name ;
+  
+    // Update table header with location reference
+    tweetHdrNew = (tableData[0].twitter_name + " Trending Tweets") ;
+    console.log(tweetHdrNew);
+    d3.select("#tweetHdr").html(tweetHdrNew) ;
 
     // Get a reference to the table body
     var tbody = d3.select("tbody");
@@ -47,24 +48,25 @@ function buildLocTable(woeid = 23424977) {
 
       });
 
+      // remove location from table rows - now added to header 
+      fields_new = ["twitter_tweet_name","twitter_tweet_url", "twitter_tweet_volume"];
 
       // Itereate through data and append data element `td` 
       // and data for data fields specified in the fields list above
-      fields.forEach(f => {
-        var cell = tbody.append("td");
-        var urlCheck = locTrend[f].toString().slice(0, 4);
-        if (urlCheck == "http") {
-          link = cell.append("a");
-          link.attr('href', locTrend[f]);
-          link.attr('target', "_blank");
-          link.text(locTrend[f]);
-        } else {
-          cell.text(locTrend[f]);
-          cell.attr('id', tweetID);
-        }
+      fields_new.forEach(f => {
+          var cell = tbody.append("td");
+          var urlCheck = locTrend[f].toString().slice(0, 4);
+          if (urlCheck == "http") {
+            link = cell.append("a");
+            link.attr('href', locTrend[f]);
+            link.attr('target', "_blank");
+            link.text(locTrend[f]);
+          } else {
+            cell.text(locTrend[f]);
+            cell.attr('id', tweetID);
+          }
       });
     });
-
 
     // Get the element, add a click listener...
     document.getElementById("trendTbl").addEventListener("click", function (e) {
@@ -174,10 +176,8 @@ function getTweetLocations(tweetQuery) {
     // Iterate through results and get
     // woeid information to build map and demographics
     tableData.forEach((locTrend) => {
-      console.log(locTrend);
       woeids.push(locTrend.woeid);
     });
-    console.log(woeids);
     // get state names and refresh demographics
     getState(woeids);
 
@@ -185,9 +185,6 @@ function getTweetLocations(tweetQuery) {
     console.log(tweetName);
     console.log(woeids);
     colorMarkers(woeids, tweetName);
-
-    console.log(states);
-    console.log(woeids);
-
+ 
   });
 }
