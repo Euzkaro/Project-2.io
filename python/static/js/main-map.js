@@ -428,6 +428,16 @@ function colorMarkers(trendingLocations, tweetName) {
   
             }
 
+    // Add tweet as overlay layer on map if not already present 
+    if (clickedTrends.includes(tweetName)) {
+        // do nothing (don't add a trend that's already represented in layers)
+        } else {
+            trendLocLayer = L.layerGroup(trendLocList).addTo(map);
+            layerControl.addOverlay(trendLocLayer,tweetName).addTo(map);
+        }
+
+        clickedTrends.push(tweetName);
+
     });
 }
 
@@ -440,9 +450,13 @@ function colorMarkers(trendingLocations, tweetName) {
 var map = null;
 var trendLocMarker = null;
 var trendLocLayer = null;
+<<<<<<< HEAD
 var clickedTrends = [] ;
 var trendLayerControl = 0 ;
 var overflowFlag = 0 ;
+=======
+var clickedTrends = [];
+>>>>>>> ab654ceb49d5adf6ee0d4488cac60897101dea33
 
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const url = `https://geotweetapp.herokuapp.com/locations`;
