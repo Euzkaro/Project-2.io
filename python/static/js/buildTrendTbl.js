@@ -32,7 +32,7 @@ function buildLocTable(woeid = 23424977) {
 
     // Loop through data and append one table row `tr` for each object
     tableData.forEach((locTrend) => {
-      var tweetID = locTrend.twitter_tweet_query;
+      var tweetID = encodeURIComponent(locTrend.twitter_tweet_name);
       var row = tbody.append("tr");
       row.attr('class', 'trendRow');
       row.attr('id', tweetID);
