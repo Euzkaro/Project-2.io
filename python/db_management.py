@@ -25,7 +25,7 @@ from pprint import pprint
 from .app import db, app
 from .models import Location, Trend
 
-# Only perform import if this is being run locally.
+# Only perform import of local API config file if this Flask app is being run locally.
 # If being run from Heroku the keys will be provided
 # via the app environment variables configured there
 
@@ -41,6 +41,11 @@ try:
     # Flickr API
     key_flicker_infoquestor_key = os.environ['key_flicker_infoquestor_key']
     key_flicker_infoquestor_secret = os.environ['key_flicker_infoquestor_secret']
+
+    # PostgreSQL Database Login/Password  
+    # -- only needed if using a local PostgresSQL instance (vs. SQLite)
+    # key_flicker_infoquestor_key = os.environ['postgres_geotweetapp_login']
+    # key_flicker_infoquestor_secret = os.environ['postgres_geotweetapp_password']
 
 except KeyError:
     # Keys have not been set in the environment
