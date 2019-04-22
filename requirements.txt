@@ -144,6 +144,7 @@ pycrypto==2.6.1
 pycurl==7.43.0.2
 pyflakes==2.0.0
 Pygments==2.2.0
+PyHamcrest==1.9.0
 pylint==2.1.1
 pymongo==3.7.2
 PyMySQL==0.9.3
@@ -201,7 +202,7 @@ tornado==5.1
 tqdm==4.26.0
 traitlets==4.3.2
 tweepy==3.7.0
-Twisted==18.7.0
+twisted==18.7.0
 typed-ast==1.1.0
 unicodecsv==0.14.1
 urllib3==1.23
