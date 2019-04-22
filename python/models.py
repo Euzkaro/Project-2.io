@@ -9,7 +9,7 @@ class Location(db.Model):
     # top trends data is available, as well as location specific
     # info like latitude/longitude
     id = db.Column(db.Integer, primary_key=True)
-    woeid = db.Column(db.Integer)
+    woeid = db.Column(db.Integer, unique=True, nullable=False)
     twitter_country = db.Column(db.String(100))
     tritter_country_code = db.Column(db.String(10))
     twitter_name = db.Column(db.String(250))
@@ -31,6 +31,8 @@ class Location(db.Model):
     state_name_only = db.Column(db.String(250))
     state_woeid = db.Column(db.Integer)
     timezone = db.Column(db.String(250))
+
+    my_trends = db.relationship('Trend', backref=db.backref('my_location', lazy=True))
     
     def __repr__(self):
         return '<Location %r>' % (self.name)
@@ -53,7 +55,9 @@ class Trend(db.Model):
     twitter_tweet_url = db.Column(db.String(250))
     twitter_tweet_volume = db.Column(db.Float)
 
-    locations = db.relationship('Location', backref=db.backref('trends', lazy=True))
+    # With more investigation, determined this is an
+    # incorrect usage of relationship method below - removing it
+    # locations = db.relationship('Location', backref=db.backref('trends', lazy=True))
      
     def __repr__(self):
         return '<Trend %r>' % (self.name)
