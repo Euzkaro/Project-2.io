@@ -343,7 +343,7 @@ def get_top_trends_for_location(a_woeid):
     results = db.session.query(Trend) \
                         .filter(Trend.woeid == a_woeid) \
                         .order_by(Trend.twitter_tweet_volume.desc()) \
-                        .limit(5).all()
+                        .limit(10).all()
 
     trend_list = []
     for r in results:
