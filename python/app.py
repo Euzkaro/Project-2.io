@@ -33,7 +33,24 @@ from sqlalchemy.sql.expression import func
 
 #Probably don't need these from SQLAlchemy: asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
 
+# Local DB path for SQLite - default
 db_path_flask_app = "sqlite:///data/twitter_trends.db"
+
+# Local DB path for PostgreSQL - use only if login/password populated
+try:
+    # PostgreSQL Database Login/Password  
+    # -- only needed if using a local PostgresSQL instance (vs. SQLite)
+    from api_config import (postgres_geotweetapp_login, postgres_geotweetapp_password)
+
+    # If the login and password is populated
+    if (postgres_geotweetapp_login is not None) and (postgres_geotweetapp_password is not None):
+        db_path_flask_app = f"postgresql://{postgres_geotweetapp_login}:{postgres_geotweetapp_password}@localhost/twitter_trends"
+        print("Note: PostgreSQL database login/password is populated")
+
+# If the api_config file is not available, then all we can do is flag an error
+except ImportError:
+    print("Note: PostgreSQL database login/password is *not* populated")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or db_path_flask_app
 
 # Flask-SQLAlchemy database
@@ -240,12 +257,12 @@ def get_info_for_location(a_woeid):
 
 #********************************************************************************
 # Return a list of all locations that have the specified tweet in its top trends
-# and then sort the results by tweet volume in descending order
+# and then sort the results by tweet volume in descending order (with NULLs last)
 @app.route("/locations/tweet/<a_tweet>")
 def get_locations_with_tweet(a_tweet):
     results = db.session.query(Trend, Location).join(Location) \
                         .filter(Trend.twitter_tweet_name == a_tweet ) \
-                        .order_by( Trend.twitter_tweet_volume.desc() ).all()
+                        .order_by( Trend.twitter_tweet_volume.desc().nullslast() ).all()
 
     loc_list = []
     for r in results:
@@ -314,9 +331,12 @@ def get_all_trends():
 
 #********************************************************************************
 # Return the full list of Twitter Top Trends for a specific location
+# and then sort the results by tweet volume in descending order (with NULLs last)
 @app.route("/trends/<a_woeid>")
 def get_trends_for_location(a_woeid):
-    results = db.session.query(Trend).filter(Trend.woeid == a_woeid).all()
+    results = db.session.query(Trend).filter(Trend.woeid == a_woeid) \
+                        .order_by(Trend.twitter_tweet_volume.desc().nullslast() ) \
+                        .all()
 
     trend_list = []
     for r in results:
@@ -338,12 +358,13 @@ def get_trends_for_location(a_woeid):
 
 #********************************************************************************
 # Return the top 5 list of Twitter Top Trends for a specific location
+# and then sort the results by tweet volume in descending order (with NULLs last)
 @app.route("/trends/top/<a_woeid>")
 def get_top_trends_for_location(a_woeid):
     results = db.session.query(Trend) \
                         .filter(Trend.woeid == a_woeid) \
-                        .order_by(Trend.twitter_tweet_volume.desc()) \
-                        .limit(5).all()
+                        .order_by(Trend.twitter_tweet_volume.desc().nullslast() ) \
+                        .limit(10).all()
 
     trend_list = []
     for r in results:
