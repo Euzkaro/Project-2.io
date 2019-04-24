@@ -42,16 +42,12 @@ try:
     key_flicker_infoquestor_key = os.environ['key_flicker_infoquestor_key']
     key_flicker_infoquestor_secret = os.environ['key_flicker_infoquestor_secret']
 
-    # PostgreSQL Database Login/Password  
-    # -- only needed if using a local PostgresSQL instance (vs. SQLite)
-    # key_flicker_infoquestor_key = os.environ['postgres_geotweetapp_login']
-    # key_flicker_infoquestor_secret = os.environ['postgres_geotweetapp_password']
-
 except KeyError:
     # Keys have not been set in the environment
     # So need to import them locally
-
     try:
+        # Twitter API keys
+        # Flickr API keys
         from api_config import *
 
     # If the api_config file is not available, then all we can do is flag an error

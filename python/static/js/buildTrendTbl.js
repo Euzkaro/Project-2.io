@@ -55,15 +55,26 @@ function buildLocTable(woeid = 23424977) {
       // and data for data fields specified in the fields list above
       fields_new.forEach(f => {
           var cell = tbody.append("td");
-          var urlCheck = locTrend[f].toString().slice(0, 4);
-          if (urlCheck == "http") {
-            link = cell.append("a");
-            link.attr('href', locTrend[f]);
-            link.attr('target', "_blank");
-            link.text(locTrend[f]);
-          } else {
-            cell.text(locTrend[f]);
+
+          // Handle a null value in the table data gracefully
+          if (locTrend[f] === null) {
+            // This entry is null, so populate an empty cell value,
+            // but with the proper attribute set
+            cell.text(" ");
             cell.attr('id', tweetID);
+
+          } else {
+            // This entry is not null, so populate it in the table accordingly
+            var urlCheck = locTrend[f].toString().slice(0, 4);
+            if (urlCheck == "http") {
+              link = cell.append("a");
+              link.attr('href', locTrend[f]);
+              link.attr('target', "_blank");
+              link.text(locTrend[f]);
+            } else {
+              cell.text(locTrend[f]);
+              cell.attr('id', tweetID);
+            }  
           }
       });
     });
