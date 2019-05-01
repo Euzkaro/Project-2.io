@@ -30,6 +30,7 @@ CORS(app)
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql.expression import func, and_, or_
+from sqlalchemy.sql.functions import coalesce
 
 #Probably don't need these from SQLAlchemy: asc, desc, between, distinct, func, null, nullsfirst, nullslast, or_, and_, not_
 
@@ -167,9 +168,14 @@ def get_all_locations():
     # results = db.session.query(Location).all()
         
     # Create a subquery to find the most recent "updated_at" record per woeid
-    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_updated_at"))                         .group_by(Location.woeid)                         .subquery()
+    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_updated_at")) \
+                            .group_by(Location.woeid).subquery()
 
-    results = db.session.query(Location)                     .filter( and_(                             Location.woeid == loc_subq.c.woeid,                             Location.updated_at == loc_subq.c.max_updated_at                            )).order_by(Location.woeid).all()
+    results = db.session.query(Location) \
+                            .filter( and_( \
+                                Location.woeid == loc_subq.c.woeid, \
+                                Location.updated_at == loc_subq.c.max_updated_at \
+                            )).order_by(Location.woeid).all()
 
     loc_list = []
     for r in results:
@@ -260,7 +266,11 @@ def get_interval_all_locations(a_date_range):
         loc_list = [{'ERROR': 'ERROR'}]
         return jsonify(loc_list)
     
-    results = db.session.query(Location)                     .filter( and_(                             func.date(Location.updated_at) >= q_start_date,                             func.date(Location.updated_at) <= q_end_date                            )).order_by(Location.woeid).all()
+    results = db.session.query(Location) \
+                            .filter( and_( \
+                                func.date(Location.updated_at) >= q_start_date, \
+                                func.date(Location.updated_at) <= q_end_date \
+                            )).order_by(Location.woeid).all()
 
     loc_list = []
     for r in results:
@@ -306,9 +316,15 @@ def get_info_for_location(a_woeid):
     #                     .all()
         
     # Create a subquery to find the most recent "updated_at" record per woeid
-    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_updated_at"))                         .group_by(Location.woeid)                         .subquery()
+    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_updated_at")) \
+                            .group_by(Location.woeid).subquery()
 
-    results = db.session.query(Location)                     .filter( and_(                             Location.woeid == a_woeid,                             Location.woeid == loc_subq.c.woeid,                             Location.updated_at == loc_subq.c.max_updated_at                             )).order_by(Location.woeid).all()
+    results = db.session.query(Location) \
+                            .filter( and_( \
+                                Location.woeid == a_woeid, \
+                                Location.woeid == loc_subq.c.woeid, \
+                                Location.updated_at == loc_subq.c.max_updated_at \
+                            )).order_by(Location.woeid).all()
     
     loc_list = []
     for r in results:
@@ -365,7 +381,12 @@ def get_interval_info_for_location(a_date_range, a_woeid):
         loc_list = [{'ERROR': 'ERROR'}]
         return jsonify(loc_list)
     
-    results = db.session.query(Location)                     .filter( and_(                             Location.woeid == a_woeid,                             func.date(Location.updated_at) >= q_start_date,                             func.date(Location.updated_at) <= q_end_date                            )).order_by(Location.woeid).all()
+    results = db.session.query(Location) \
+                            .filter( and_( \
+                                Location.woeid == a_woeid, \
+                                func.date(Location.updated_at) >= q_start_date, \
+                                func.date(Location.updated_at) <= q_end_date \
+                            )).order_by(Location.woeid).all()
 
     loc_list = []
     for r in results:
@@ -409,19 +430,21 @@ def get_locations_with_tweet(a_tweet):
     # REVISED FOR GeoTweet+: Needs to account for retention of locations over time
 
     # Create a subquery to find the most recent locations table "updated_at" record per woeid
-    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_loc_updated_at"))                         .group_by(Location.woeid)                         .subquery()
+    loc_subq = db.session.query(Location.woeid, func.max(Location.updated_at).label("max_loc_updated_at")) \
+                            .group_by(Location.woeid).subquery()
     
     # Create a subquery to find the most recent trends table "updated_at" record per woeid
-    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_trend_updated_at"))                         .group_by(Trend.woeid)                         .subquery() 
+    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_trend_updated_at")) \
+                            .group_by(Trend.woeid).subquery() 
     
-    results = db.session.query(Trend, Location).join(Location)                         .filter( and_(
+    results = db.session.query(Trend, Location).join(Location) \
+                            .filter( and_( \
                                 Trend.twitter_tweet_name == a_tweet, \
                                 Trend.woeid == trend_subq.c.woeid, \
                                 Trend.updated_at == trend_subq.c.max_trend_updated_at, \
                                 Location.woeid == loc_subq.c.woeid, \
                                 Location.updated_at == loc_subq.c.max_loc_updated_at \
-                                )) \
-                        .order_by( Trend.twitter_tweet_volume.desc().nullslast() ).all()
+                                )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
 
     loc_list = []
     for r in results:
@@ -490,7 +513,14 @@ def get_interval_locations_with_tweet(a_date_range, a_tweet):
         return jsonify(trend_list)
     
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend, Location).join(Location)                         .filter( and_(                                Trend.twitter_tweet_name == a_tweet,                                func.date(Trend.updated_at) >= q_start_date,                                func.date(Trend.updated_at) <= q_end_date                                ))                         .order_by( Trend.twitter_tweet_volume.desc().nullslast() ).all()
+    # In the order_by clause, use the coalesce() function to replace all NULL values
+    # in the twitter_tweet_volume field with -9999 for the purpose of the sort in descending order
+    results = db.session.query(Trend, Location).join(Location) \
+                            .filter( and_( \
+                                Trend.twitter_tweet_name == a_tweet, \
+                                func.date(Trend.updated_at) >= q_start_date, \
+                                func.date(Trend.updated_at) <= q_end_date \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
 
     loc_list = []
     for r in results:
@@ -544,15 +574,15 @@ def get_all_trends():
     # results = db.session.query(Trend).all()
 
     # Create a subquery to find the most recent "updated_at" record per woeid
-    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at"))                         .group_by(Trend.woeid)                         .subquery()
+    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at")) \
+                                .group_by(Trend.woeid).subquery()
 
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend)                     .filter( and_(
-                            Trend.woeid == trend_subq.c.woeid, \
-                            Trend.updated_at == trend_subq.c.max_updated_at \
-                           )) \
-                    .order_by( Trend.twitter_tweet_volume.desc().nullslast() ) \
-                    .all()
+    results = db.session.query(Trend) \
+                            .filter( and_(
+                                    Trend.woeid == trend_subq.c.woeid, \
+                                    Trend.updated_at == trend_subq.c.max_updated_at \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
 
     
     trend_list = []
@@ -598,7 +628,11 @@ def get_interval_all_trends(a_date_range):
         return jsonify(trend_list)
     
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend)                     .filter( and_(                             func.date(Trend.updated_at) >= q_start_date,                             func.date(Trend.updated_at) <= q_end_date                            ))                     .order_by(Trend.twitter_tweet_volume.desc().nullslast()).all()
+    results = db.session.query(Trend) \
+                            .filter( and_( \
+                                func.date(Trend.updated_at) >= q_start_date, \
+                                func.date(Trend.updated_at) <= q_end_date \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
     
     trend_list = []
     for r in results:
@@ -632,10 +666,16 @@ def get_trends_for_location(a_woeid):
     #                    .all()
 
     # Create a subquery to find the most recent "updated_at" record per woeid
-    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at"))                         .group_by(Trend.woeid)                         .subquery()
+    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at")) \
+                                .group_by(Trend.woeid).subquery()
 
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend)                     .filter( and_(                             Trend.woeid == a_woeid,                             Trend.woeid == trend_subq.c.woeid,                             Trend.updated_at == trend_subq.c.max_updated_at                            ))                     .order_by(Trend.twitter_tweet_volume.desc().nullslast() )                     .all()
+    results = db.session.query(Trend) \
+                            .filter( and_( \
+                                Trend.woeid == a_woeid, \
+                                Trend.woeid == trend_subq.c.woeid, \
+                                Trend.updated_at == trend_subq.c.max_updated_at \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
     
     trend_list = []
     for r in results:
@@ -680,7 +720,12 @@ def get_interval_trends_for_location(a_date_range, a_woeid):
         return jsonify(trend_list)
     
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend)                     .filter( and_(                             Trend.woeid == a_woeid,                             func.date(Trend.updated_at) >= q_start_date,                             func.date(Trend.updated_at) <= q_end_date                            ))                     .order_by(Trend.twitter_tweet_volume.desc().nullslast() )                     .all()
+    results = db.session.query(Trend) \
+                            .filter( and_( \
+                                Trend.woeid == a_woeid, \
+                                func.date(Trend.updated_at) >= q_start_date, \
+                                func.date(Trend.updated_at) <= q_end_date \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).all()
 
     
     trend_list = []
@@ -712,9 +757,15 @@ def get_top_trends_for_location(a_woeid):
     # REVISED FOR GeoTweet+: Needs to account for retention of trends over time
 
     # Create a subquery to find the most recent "updated_at" record per woeid
-    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at"))                         .group_by(Trend.woeid)                         .subquery()
+    trend_subq = db.session.query(Trend.woeid, func.max(Trend.updated_at).label("max_updated_at")) \
+                                .group_by(Trend.woeid).subquery()
 
-    results = db.session.query(Trend)                     .filter( and_(                             Trend.woeid == a_woeid,                             Trend.woeid == trend_subq.c.woeid,                             Trend.updated_at == trend_subq.c.max_updated_at                            ))                     .order_by(Trend.twitter_tweet_volume.desc().nullslast() )                     .limit(10).all()
+    results = db.session.query(Trend) \
+                            .filter( and_( \
+                                Trend.woeid == a_woeid, \
+                                Trend.woeid == trend_subq.c.woeid, \
+                                Trend.updated_at == trend_subq.c.max_updated_at \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).limit(10).all()
 
     trend_list = []
     for r in results:
@@ -760,7 +811,12 @@ def get_interval_top_trends_for_location(a_date_range, a_woeid):
         return jsonify(trend_list)
     
     # Query to pull all of the most recent Trends (50 per entry in 'locations' table)
-    results = db.session.query(Trend)                     .filter( and_(                             Trend.woeid == a_woeid,                             func.date(Trend.updated_at) >= q_start_date,                             func.date(Trend.updated_at) <= q_end_date,                            ))                     .order_by(Trend.twitter_tweet_volume.desc().nullslast() )                     .limit(10).all()
+    results = db.session.query(Trend) \
+                            .filter( and_( \
+                                Trend.woeid == a_woeid, \
+                                func.date(Trend.updated_at) >= q_start_date, \
+                                func.date(Trend.updated_at) <= q_end_date \
+                            )).order_by( coalesce(Trend.twitter_tweet_volume, -9999).desc() ).limit(10).all()
 
     trend_list = []
     for r in results:
