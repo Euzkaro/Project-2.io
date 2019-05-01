@@ -1,7 +1,7 @@
-# Project 2 - GeoTweet
+# Project 3 - GeoTweet+
 # 
 # @Author Jeffery Brown (daddyjab)
-# @Date 3/27/19
+# @Date 5/1/19
 # @File db_management.py
 
 # This file contains function which update the
@@ -9,20 +9,24 @@
 # 'locations' and 'trends' via API calls to Twitter and Flickr
 
 # The following dependencies are only required for update/mgmt of
-# 'locations' and 'trends' data, not for reading the data
+# 'locations' and 'trends' data
+# datetime (datetime, date) and dateutil(parser)
+# may be required by some Flask routes
+# indirectly via the parse_date_range() function
 import json
 import time
 import os
 import pandas as pd
-from datetime import datetime 
-from dateutil import tz
+from datetime import datetime, date
+from dateutil import tz, parser
 import requests
 from pprint import pprint
 
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
-# from app import db, Location, Trend
 from .app import db, app
+
+# Import the Database models defined in the models.py file
 from .models import Location, Trend
 
 # Only perform import of local API config file if this Flask app is being run locally.
@@ -52,16 +56,50 @@ except KeyError:
 
     # If the api_config file is not available, then all we can do is flag an error
     except ImportError:
-        print("Error: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
+        print("Import Keys: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
 
-auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
-auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
-api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
+try:
+    auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
+    auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
+    api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
+
+except TweepError:
+    print("Authentication error: Problem authenticating Twitter API using Tweepy (TweepError)")
 
 # # Function Definitions: Twitter API Rate Limit Management
+
+def api_rate_limits():
+# Return the number of Twitter API calls remaining
+# for the specified API type:
+# "trends/place": Top 10 trending topics for a WOEID
+# "trends/closest": Locations near a specificed lat/long for which Twitter has trending topic info
+# "trends/available": Locations for which Twitter has topic info
+# "search/tweets": 
+# "users/search"
+# "users/shows"
+# "users/lookup"
+# 
+# Global Variable: 'api': Tweepy API
+# 
+
+    # Get Twitter rate limit information using the Tweepy API
+    try:
+        rate_limits = api.rate_limit_status()
+        
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
+    # Return the remaining requests available for the
+    # requested type of trends query (or "" if not a valid type)
+    try:
+        return rate_limits['resources']
+
+    except:
+        return ""
+
 
 def api_calls_remaining( a_type = "place"):
 # Return the number of Twitter API calls remaining
@@ -155,13 +193,16 @@ def get_loc_with_trends_available_to_df( ):
     try:
         trends_avail = api.trends_available()
         
-    except TweepError as e:
-        # No top trends info available for this WOEID, return False
-        print(f"Error obtaining top trends for WOEID {a_woeid}: ", e)
+    except:
+        # No locations info available, return False
+        print(f"Tweepy API: Problem getting locations that have trends available information")
         return False
     
     # Import trend availability info into a dataframe
     trends_avail_df = pd.DataFrame.from_dict(trends_avail, orient='columns')
+    
+    # Set the 'updated_at' column to the current time in UTC timezone for all locations
+    trends_avail_df['updated_at'] = datetime.utcnow()
 
     # Retain only locations in the U.S.
     trends_avail_df = trends_avail_df[ (trends_avail_df['countryCode'] == "US") ]
@@ -205,7 +246,7 @@ def get_location_info( a_woeid ):
         response = requests.get(url=flickr_api_url)
         
     except requests.exceptions.RequestException as e:
-        print("Error obtaining location information for WOEID {a_woeid}: ", e)
+        print(f"Flickr API: Problem getting location information for WOEID {a_woeid}: ")
         return False
     
     # Parse the json
@@ -213,7 +254,7 @@ def get_location_info( a_woeid ):
     
     # Check for failure to locate the information
     if (location_data['stat'] == 'fail'):
-        print(f"Error finding location WOEID {a_woeid}: {location_data['message']}")
+        print(f"Flickr API: Problem finding location WOEID {a_woeid}: {location_data['message']}")
         
         
     #pprint(location_data)
@@ -319,21 +360,67 @@ def update_db_locations_table():
     twitter_trend_locations_df = loc_with_trends_available_df.merge(loc_info_df, how='inner', on='woeid')
 
     # Delete all location information currently in the database 'locations' table
-    db.session.query(Location).delete()
-    db.session.commit()
+
+    # CHANGED FOR GeoTweet+: Keep all entries - don't delete them!
+    # db.session.query(Location).delete()
+    # db.session.commit()
 
     # Write this table of location data to the database 'locations' table
-    twitter_trend_locations_df.to_sql( 'locations', con=db.engine, if_exists='append', index=False)
-    db.session.commit()
+    # twitter_trend_locations_df.to_sql( 'locations', con=db.engine, if_exists='append', index=False)
+    # db.session.commit()
 
-    # Print an informative message regarding the update just performed
+    # CHANGED FOR GeoTweet+: Update locations already in the table and add locations that are not
+    # There is no cross-database SQLAlchemy support for the 'upsert' operation,
+    # So query for each WOEID in the dataframe and decide if an 'add' or an 'update' is needed...
+    
+    # Convert all 'NaN' values to 'None' to avoid issues when updating the database
+    # Note: Some cities had county_woeid set to "NaN", which caused much havoc with db operations
+    twitter_trend_locations_df = twitter_trend_locations_df.where((pd.notnull(twitter_trend_locations_df)), None)
+    
+    # Loop through all rows in the update dataframe
+    n_adds = 0
+    n_updates = 0
+    for index, row in twitter_trend_locations_df.iterrows():
+        # Get this row into a dictionary, but exclude primary key 'woeid'
+        row_dict = row.to_dict()
+
+        # pprint(f"DataFrame: {row['woeid']}")
+        result = db.session.query(Location).filter( Location.woeid == row['woeid'] ).first()
+
+        if result is None:
+            # This location is not in the table, so add this entrry to the 'locations' table.
+            # NOTE: 
+            # Location is the Class mapped to the 'locations' table
+            # row_dict is a dictionary containing all of the column values for this row as key/value pairs
+            # The term "**row_dict" creates a "key=value" parameter for each key/value pair
+#             print(f"ADD: DataFrame twitter_trend_locations_df: {row['woeid']} => Database 'locations': New Entry")
+            try:
+                db.session.add( Location(**row_dict) )
+                db.session.commit()
+                n_adds += 1
+                
+            except:
+                print(f">>> Error while attempting to add record to 'locations'")
+                db.session.rollback()
+            
+        else:
+            # This location is in the table, so update this entry in the 'locations' table.
+#             print(f"UPDATE: DataFrame twitter_trend_locations_df: {row['woeid']} => Database 'locations': {result.woeid}: {result.name_full}")
+            
+            try:
+                db.session.query(Location).filter( Location.woeid == row['woeid'] ).update( row_dict )
+                db.session.commit()
+                n_updates += 1
+                
+            except:
+                print(f">>> Error while attempting to update record in 'locations'")
+                db.session.rollback()
+                
+    # Return the total number of entries in the Locations table
     num_loc = db.session.query(Location).count()
-    #q_results = db.session.query(Location).all()
-    #print(f"Updated {len(q_results)} locations")
-
-    #for row in q_results:
-    #    print(row.woeid, row.name_full)
-
+    
+#   print(f"Adds/Updates complete: Adds: {n_adds}, Updates {n_updates} => Rows in 'locations' table: {num_loc}")
+    
     return num_loc
 
 
@@ -348,9 +435,9 @@ def get_trends_for_loc( a_woeid ):
     try:
         top_trends = api.trends_place( a_woeid )[0]
         
-    except TweepError as e:
+    except:
         # No top trends info available for this WOEID, return False
-        print(f"Error obtaining top trends for WOEID {a_woeid}: ", e)
+        print(f"Tweepy API: Problem getting trends information for WOEID {a_woeid}")
         return False
     
     #pprint(top_trends)
@@ -359,12 +446,14 @@ def get_trends_for_loc( a_woeid ):
     common_info = {}
         
     # Basic information that should be present for any location
+    # 'updated_at': Current time in UTC timezone
     # 'as_of': '2019-03-26T21:22:42Z',
     # 'created_at': '2019-03-26T21:17:18Z',
     # 'locations': [{'name': 'Atlanta', 'woeid': 2357024}]
     try:
         common_info.update( {
             'woeid': int(top_trends['locations'][0]['woeid']),
+            'updated_at': datetime.utcnow(),
             'twitter_name': top_trends['locations'][0]['name'],
             'twitter_created_at': top_trends['created_at'],
             'twitter_as_of': top_trends['as_of']
@@ -438,7 +527,7 @@ def update_db_trends_table():
 
         # Make sure we haven't hit the rate limit yet
         calls_remaining = api_calls_remaining( "place" )
-        time_before_reset = api_time_before_reset( "place")
+        time_before_reset = api_time_before_reset( "place" )
 
         # If we're close to hitting the rate limit for the trends/place API,
         # then wait until the next reset =
@@ -456,8 +545,10 @@ def update_db_trends_table():
             
             # Delete any trends associated with this WOEID
             # before appending new trends to the 'trends' table for this WOEID
-            db.session.query(Trend).filter(Trend.woeid == tw_woeid).delete()
-            db.session.commit()
+            
+            # CHANGED FOR GeoTweet+: Keep all entries - don't delete them!
+            # db.session.query(Trend).filter(Trend.woeid == tw_woeid).delete()
+            # db.session.commit()
 
             # Append trends for this WOEID to the 'trends' database table
             t_info_df.to_sql( 'trends', con=db.engine, if_exists='append', index=False)
@@ -471,3 +562,76 @@ def update_db_trends_table():
             
     return num_location_trends_written_to_db
 
+def parse_date_range(a_date_range = None):
+# Function to parse date ranges specified with the Flask API '/period' routes
+# Note, 
+# Arguments: Single string a_date_range with possible formats:
+#     a_date_range = "2019-03-01"    ->   ">= 3/1/19"
+#     a_date_range = ":2019-06-01"    ->   "<= 6/30/19"
+#     a_date_range = "2019-03-01:2019-06-30"  ->   ">= 3/1/19 and  <= 6/30/19"
+#     a_date_range = "all"  -> all dates
+#     a_date_range = ":"  -> same as "all"
+#     a_date_range = ""   -> same as "all"
+#
+# Returns:
+#     start_date: Earliest date (inclusive), for use in date comparison
+#     end_date: Latest date (inclusive), for use in date comparison
+#     If either date cannot be parsed, an error message is returned
+
+    # Max and Min dates
+    DATE_EARLIEST_POSSIBLE = parser.parse("2000-01-01").date()
+    DATE_LATEST_POSSIBLE = parser.parse("2100-12-31").date()
+
+    # Initialize default return valus - no date restriction
+    start_date = DATE_EARLIEST_POSSIBLE
+    end_date = DATE_LATEST_POSSIBLE
+    
+    # Parse the argument to obtain the start and end dates - if provided
+    
+    # If no argument provided, provide full date range (i.e., no date restriction)
+    if a_date_range is None:
+        # Return default values
+        return (start_date, end_date)
+
+    # Prep the date range for additional processing
+    date_range = a_date_range.strip().lower()
+    
+    # Check for "all" and similar indications of no date restriction
+    if date_range == "all" or date_range == "" or date_range == ":" :
+        # Return default values
+        return (start_date, end_date)
+    
+    # Attempt to split the date range (seperator = ":")
+    arg_list = a_date_range.split(":")
+    
+    # If only one argument provided (i.e., no ":")
+    # then restrict date range to just that one date
+    if len(arg_list) == 1:
+        try:
+            start_date = parser.parse(arg_list[0]).date()
+            end_date = start_date
+            
+        except ValueError:
+            start_date = f"ERROR"
+            end_date = start_date
+
+        return (start_date, end_date)
+    
+    # At least 2 args provided, so assume they are start and end dates
+    
+    # Populate start date if the argument is populated, otherwise leave the default
+    if len(arg_list[0])>0:
+        try:
+            start_date = parser.parse(arg_list[0]).date()
+        except ValueError:
+            start_date = f"ERROR"
+
+    # Populate end date if the argument is populated, otherwise leave the default
+    if len(arg_list[1])>0:
+        try:
+            end_date = parser.parse(arg_list[1]).date()
+        except ValueError:
+            end_date =  f"ERROR"
+
+    # Get the date range from the arguments
+    return (start_date, end_date)
