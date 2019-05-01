@@ -1,3 +1,9 @@
+# Project 3 - GeoTweet+
+# 
+# @Author Jeffery Brown (daddyjab)
+# @Date 5/1/19
+# @File models.py
+
 from .app import db
 
 # Database schema for Twitter 'locations' table
@@ -9,6 +15,7 @@ class Location(db.Model):
     # top trends data is available, as well as location specific
     # info like latitude/longitude
     id = db.Column(db.Integer, primary_key=True)
+    updated_at = db.Column( db.DateTime )
     woeid = db.Column(db.Integer, unique=True, nullable=False)
     twitter_country = db.Column(db.String(100))
     tritter_country_code = db.Column(db.String(10))
@@ -35,7 +42,7 @@ class Location(db.Model):
     my_trends = db.relationship('Trend', backref=db.backref('my_location', lazy=True))
     
     def __repr__(self):
-        return '<Location %r>' % (self.name)
+        return f"<Location {self.name_full} [updated_at: {self.updated_at}>"
 
 # Database schema for Twitter 'trends' table
 class Trend(db.Model):
@@ -45,6 +52,7 @@ class Trend(db.Model):
     # which will hold all of the top trends associated with
     # locations in the 'locations' table
     id = db.Column(db.Integer, primary_key=True)
+    updated_at = db.Column( db.DateTime )
     woeid = db.Column(db.Integer, db.ForeignKey('locations.woeid') )
     twitter_as_of = db.Column(db.String(100))
     twitter_created_at = db.Column(db.String(100))
@@ -60,4 +68,4 @@ class Trend(db.Model):
     # locations = db.relationship('Location', backref=db.backref('trends', lazy=True))
      
     def __repr__(self):
-        return '<Trend %r>' % (self.name)
+        return f"<Trend {self.my_location.name_full}: {self.twitter_tweet_name} [updated_at: {self.updated_at}>"
