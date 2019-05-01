@@ -281,7 +281,7 @@ function createMarkers(data) {
 
         // For each location, create a marker and bind a popup with the location name
         var locationMarker = L.marker([location.latitude, location.longitude], { icon: TwitterIcon })
-            .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
+            .bindPopup("<p2>" + location.name_only + "<p2><p2 class=\"locate\" id=\"" + location.woeid + "\">" + "<br>" + location.state_name_only + "<p2>")
             .on('click', d => {
 
                 var el = document.createElement('html');
@@ -350,7 +350,7 @@ function colorMarkers(trendingLocations, tweetName) {
  
             // For each trending location, create a marker and bind a popup with the location name
             var locationMarker = L.marker([location.latitude, location.longitude], {icon: activeIcon })
-                .bindPopup("<h3>" + location.name_only + "<h3><h3 class=\"locate\" id=\"" + location.woeid + "\">" + location.state_name_only + "<h3>")
+                .bindPopup("<p2>" + location.name_only + "<p2><p2 class=\"locate\" id=\"" + location.woeid + "\">" + "<br>" +  location.state_name_only + "<p2>")
                 .on('click', d => {
                     var el = document.createElement('html');
                         el.innerHTML = d.target._popup._container;
