@@ -41,7 +41,7 @@ db_path_flask_app = "sqlite:///data/twitter_trends.db"
 try:
     # PostgreSQL Database Login/Password  
     # -- only needed if using a local PostgresSQL instance (vs. SQLite)
-    from api_config import (postgres_geotweetapp_login, postgres_geotweetapp_password)
+    from .api_config import (postgres_geotweetapp_login, postgres_geotweetapp_password)
 
     # If the login and password is populated
     if (postgres_geotweetapp_login is not None) and (postgres_geotweetapp_password is not None):

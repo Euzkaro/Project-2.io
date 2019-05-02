@@ -52,7 +52,7 @@ except KeyError:
     try:
         # Twitter API keys
         # Flickr API keys
-        from api_config import *
+        from .api_config import *
 
     # If the api_config file is not available, then all we can do is flag an error
     except ImportError:
