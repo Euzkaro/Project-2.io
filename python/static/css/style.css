@@ -211,9 +211,9 @@ form.search button:hover {
   background: rgb(131, 110, 170);
 }
 
-/* Clear floats */
+/* Clear floats 
 form.search::after {
   content: "";
   clear: both;
   display: table;
-}
+} */
