@@ -3,6 +3,7 @@ body,
 html {
   height: 400px;
   Margin-left: 5px;
+  Margin-right: 5px;
 }
 
 .img-theme{
@@ -10,7 +11,6 @@ html {
     height: auto;
     object-fit: cover;
     max-height: 80px !important;
-
   }
 
 .fixed_header{
@@ -24,7 +24,7 @@ html {
 }
 
 .fixed_header{
-    width: 470px;
+    width: 460px;
     table-layout: fixed;
     border-collapse: collapse;
 }
@@ -94,11 +94,37 @@ h3{
 }
 
 hr{
-    border-top: 2px solid rgba(128, 128, 128, 0.685);
+    border-top: 2px solid rgba(128, 128, 128, 0.685); 
+    margin-top: 1px;
+    margin-bottom: 1px;
 }
 
 p{
     color: #4C4A4F;  
+}
+
+/* Text formatting for leaflet pop-ups */
+
+
+p2{
+  font: 12px Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-weight: bold;
+}
+
+p3{
+  color: #4E2A84;
+  font-family: Arial, Helvetica, sans-serif; 
+  font-weight: bold;
+}
+
+p4{
+  color: #58565C;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+p5{
+  /* if needed to format variables */
 }
 
 #main-map {
@@ -122,9 +148,6 @@ p{
 
 /* item below controls leaflet popups - state and trend markers */
 .leaflet-popup-content-wrapper{
-  font: 12px Arial, Helvetica, sans-serif;
-  text-align: center;
-  font-weight: bold;
   min-width: 60px ;
   max-width: 200px ;
   min-height: 60px ;
