@@ -161,14 +161,14 @@ function createMap(trendLocMarker) {
                         });
                     },
                     // When a feature (state) is clicked, it is enlarged to fit the screen
-                    click: function (event) {
-                        map.fitBounds(event.target.getBounds());
-                    }
+                    // click: function (event) {
+                    //     map.fitBounds(event.target.getBounds());
+                    // }
                 });
                 // Giving each feature a pop-up with information pertinent to it
-                layer.bindPopup("<h1>" + feature.properties.name +
-                    "<h4>" + "ranks: " + "<h3 style=\"color:#4E2A84\"><b>" + feature.properties.Twitter_rank + "/51 </b></h3> by number of active users in the US </h4>" +
-                    "</h1> <hr> <p>Population: " +
+                layer.bindPopup("<p3>" + feature.properties.name +
+                    " ranks: " + "<p5 style=\"color:#4E2A84\"><b>" + feature.properties.Twitter_rank + "/51 </b> <br> by number of active users in the US </p5>" +
+                    "</p3> <hr> <p4>Population: " +
                     feature.properties.Population +
                     "<br> Republican Voters (%): " + feature.properties.Republican +
                     "<br> Democrat Voters (%): " + feature.properties.Democrat +
@@ -181,7 +181,7 @@ function createMap(trendLocMarker) {
                     // "<br> Natives (%): " + feature.properties.Native +
                     "<br> Unemployment (%): " + feature.properties.Unemployment +
                     "<br> Median Income Household ($): " + feature.properties.MHI +
-                    "</p>");
+                    "</p4>");
             }
         }).addTo(map);
     });
