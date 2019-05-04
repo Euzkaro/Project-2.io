@@ -84,6 +84,10 @@ function buildLocTable(woeid = 23424977) {
       // e.target is the clicked element!
       console.log("Trend Row", e.target.id, " was clicked!");
 
+    // Kamil and Eugenio: 
+    // ENTER CALLS TO REFRESH PLOTLY AND SENTIMENT ANALYSIS HERE
+    // pass parameter e.target.id to function - that's the tweet 
+
       // Transition selected row to gray then revert to indicate click
       transition(this) 
             
