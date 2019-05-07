@@ -70,7 +70,7 @@ class Trend(db.Model):
     def __repr__(self):
         return f"<Trend {self.my_location.name_full}: {self.twitter_tweet_name} [updated_at: {self.updated_at}>"
 
-# Database schema for Twitter 'trends' table
+
 class Tweet(db.Model):
     __tablename__ = 'tweets'
     
@@ -81,7 +81,7 @@ class Tweet(db.Model):
     updated_at = db.Column( db.DateTime )
     
     tweet_id = db.Column( db.Integer )
-    tweet_id_str = db.Column( db.String(50) )
+    tweet_id_str = db.Column( db.String(50), unique=True, nullable=False )
     # tweet_search_term = db.Column(db.Integer, db.ForeignKey('trends.twitter_tweet_name') )
     tweet_search_term = db.Column(db.String(250))
     tweet_created_at = db.Column(db.String(100))

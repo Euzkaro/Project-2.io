@@ -17,9 +17,13 @@ import json
 import time
 import os
 import pandas as pd
+import numpy as np
 from datetime import datetime, date
 from dateutil import tz, parser
+
 import requests
+from requests.utils import quote
+
 from pprint import pprint
 
 # Import a pointer to the Flask-SQLAlchemy database session
@@ -27,7 +31,7 @@ from pprint import pprint
 from .app import db, app
 
 # Import the Database models defined in the models.py file
-from .models import Location, Trend
+from .models import Location, Trend, Tweet
 
 # Only perform import of local API config file if this Flask app is being run locally.
 # If being run from Heroku the keys will be provided
@@ -88,9 +92,14 @@ def api_rate_limits():
     # Get Twitter rate limit information using the Tweepy API
     try:
         rate_limits = api.rate_limit_status()
+    
+    except RateLimitError as e:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy - RateLimitError")
+        pprint(e)
         
     except:
         print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+        return ""
 
     # Return the remaining requests available for the
     # requested type of trends query (or "" if not a valid type)
@@ -99,6 +108,7 @@ def api_rate_limits():
 
     except:
         return ""
+
 
 
 def api_calls_remaining( a_type = "place"):
@@ -635,3 +645,332 @@ def parse_date_range(a_date_range = None):
 
     # Get the date range from the arguments
     return (start_date, end_date)
+
+
+# ## DB Management: Twitter Tweet info
+
+# # Function Definitions: Twitter Tweet Info
+def search_for_tweets( a_search_term ):
+# Get a list of specific tweets associated with search term a_search_term,
+# flatten the relevant data, and return it as a list of dictionaries
+
+    # Number of tweets per page (up to 100) to be returned from the API query
+    tweets_count_limit = 100       # PRODUCTION
+    # tweets_count_limit = 5         # DEBUG
+    
+    try:
+        # Perform API search query and obtain only the 1st page of results
+        tweets = api.search(quote(a_search_term), lang='en', count=tweets_count_limit)
+        
+    except:
+        # No tweet info available for this search term, return False
+        print(f"Tweepy API Error: Problem getting tweet information for search term {a_search_term}")
+        return False
+    
+    
+    # Create a list of dictionaries of Tweets info associated with a_search_term
+    tweet_list = []
+
+    # Repeat some information that is common for all elements in the tweet list
+    common_info = {
+        'updated_at': datetime.utcnow(),
+        'tweet_search_term': a_search_term
+    }
+
+    # Loop through each tweet in the tweet search results
+    for t in tweets['statuses']:
+        
+        # Start the dictionary with some common information
+        tweet_info = dict(common_info)
+
+        # Info about this Tweet (i.e., "Status")
+        try:            
+            tweet_info.update( {                
+                'tweet_id': t['id'],
+                'tweet_id_str': t['id_str'],
+                'tweet_created_at': t['created_at'],
+                'tweet_text': t['text'],
+                'tweet_lang': t['lang'],
+                'tweet_source': t['source'],
+                'tweet_is_a_quote_flag': t['is_quote_status'],    # If True, then this is a Quoted Tweet (i.e., Tweet w/ comments/mods)
+            })
+
+        except:
+            print(f"Tweepy API Error: Problem getting tweet-related info")
+
+        # If the 'retweeted_status' key exists in the results,
+        # then this Tweet is a Retweet (i.e., Tweet forwarded "as is")
+        if 'retweeted_status' in t:
+            tweet_info.update( { 'tweet_is_a_retweet_flag': True })
+        else:
+            tweet_info.update( { 'tweet_is_a_retweet_flag': False })
+
+        # Counts associated with the tweet
+        try:            
+            tweet_info.update( {                
+                'tweet_entities_hashtags_count': len(t['entities']['hashtags']),
+                'tweet_entities_user_mentions_count': len(t['entities']['user_mentions']),
+                'tweet_favorite_counts': t['favorite_count'],
+                'tweet_retweet_counts': t['retweet_count'],
+            })
+
+        except:
+            print(f"Tweepy API Error: Problem getting tweet-related info")
+        
+        # User who created this Tweet
+        try:
+            tweet_info.update( {                
+                'tweet_user_id': t['user']['id'],
+                'tweet_user_id_str': t['user']['id_str'],
+                'tweet_user_created_at': t['user']['created_at'],
+                'tweet_user_name': t['user']['name'],
+                'tweet_user_screen_name': t['user']['screen_name'],
+                'tweet_user_description': t['user']['description'],
+                'tweet_user_lang': t['user']['lang'],
+                'tweet_user_statuses_count': t['user']['statuses_count'],     # No. of Tweets/Retweets issued by this user
+                'tweet_user_favourites_count': t['user']['favourites_count'],    # No. of Tweets this user has liked (in account's lifetime)
+                'tweet_user_followers_count': t['user']['followers_count'],     # No. of Followers this account currently has
+                'tweet_user_friends_count': t['user']['friends_count'],       # No. of Users this account is following
+                'tweet_user_listed_count': t['user']['listed_count']        # No. of Public lists this user is a member of
+            })
+            
+        except:
+            print(f"Tweepy API Error: Problem getting user-related info")            
+
+        # Append this tweet to the list
+        tweet_list.append( tweet_info )
+        
+        # DEBUG *******************************************************************
+        # print(f">>> In search_for_tweets( '{a_search_term}' ) - Just appended tweet_info:")
+        # pprint(tweet_info)
+        
+        # print(f">>> In search_for_tweets( '{a_search_term}' ) - tweet_list is now:")
+        # pprint(tweet_list)
+
+    return(tweet_list)
+
+def get_search_terms_from_trends(a_date_range=None):
+# Get a list of the unique tweet search terms specified in
+# the 'trends' table.
+# Ensure that all tweets in the list are unique by using a Python "set"
+    
+    # Parse the date range
+    q_start_date, q_end_date = parse_date_range(a_date_range)
+
+    # Return with an error if there was a problem parsing the date range
+    if q_start_date == "ERROR" or q_end_date == "ERROR":
+        search_term_list = [{'ERROR': 'ERROR'}]
+        # return jsonify(search_term_list)
+        return(search_term_list)
+    
+    # Query to get the search_terms (i.e., 'twitter_tweet_name')
+    # from the 'trends' table for the specified date range
+    results = db.session.query(Trend.twitter_tweet_name)                 .filter( and_(                         func.date(Trend.updated_at) >= q_start_date,                         func.date(Trend.updated_at) <= q_end_date                        ))                 .order_by( Trend.twitter_tweet_name ).all()
+
+    # Get the list of unique search terms using set()
+    # Note: The results list is a list of tuples, with first tuple being the desired value
+    search_term_set = set([ t[0] for t in results])
+
+    # To support the hashtag/no hashtag Tweet Analysis,
+    # add the complementary tweet to the table for each unique tweet
+    search_term_alt_set = set([ f"{y[1:]}" if y[:1] == "#" else f"#{y}" for y in search_term_set ])
+
+    # Combined the sets
+    search_term_set.update(search_term_alt_set)
+    
+    # Return a list
+    search_term_list = sorted(list(search_term_set))
+
+    return(search_term_list)
+
+
+def get_search_terms_from_tweets(a_date_range=None):
+# Get a list of the unique tweet search terms specified in
+# the 'tweets' table.
+# Ensure that all tweets in the list are unique by using a Python "set"
+    
+    # Parse the date range
+    q_start_date, q_end_date = parse_date_range(a_date_range)
+
+    # Return with an error if there was a problem parsing the date range
+    if q_start_date == "ERROR" or q_end_date == "ERROR":
+        search_term_list = [{'ERROR': 'ERROR'}]
+        # return jsonify(search_term_list)
+        return(search_term_list)
+    
+    # Query to get the search_terms (i.e., 'twitter_tweet_name')
+    # from the 'tweets' table for the specified date range
+    results = db.session.query(Tweet.tweet_search_term)                 .filter( and_(                         func.date(Tweet.updated_at) >= q_start_date,                         func.date(Tweet.updated_at) <= q_end_date                        ))                 .order_by( Tweet.tweet_search_term ).all()
+
+    # Get the list of unique search terms using set()
+    # Note: The results list is a list of tuples, with first tuple being the desired value
+    search_term_set = set([ t[0] for t in results])
+
+    # To support the hashtag/no hashtag Tweet Analysis,
+    # add the complementary tweet to the table for each unique tweet
+    search_term_alt_set = set([ f"{y[1:]}" if y[:1] == "#" else f"#{y}" for y in search_term_set ])
+
+    # Combined the sets
+    search_term_set.update(search_term_alt_set)
+    
+    # Return a list
+    search_term_list = sorted(list(search_term_set))
+
+    return(search_term_list)
+
+
+def get_tweet_list():
+# Based upon the search terms in 'trends' and 'tweets' tables,
+# use the Twitter Search API to get tweets for search terms
+# that are in the 'trends' table but not already in the 'tweet' table
+    
+    # Get all of the Twitter search terms in the 'trends' table
+    trends_search_term_list = get_search_terms_from_trends()
+    
+    # Get the Twitter search terms from the 'tweets' table
+    # and remove existing search terms from the list of search terms
+    # for which api calls will be performed --> Minimizes API calls
+    tweets_search_term_list = get_search_terms_from_tweets()
+    
+    # Create a list of search terms that include all terms from the 'trends'
+    # table and removes all those already in the 'tweets' table
+    add_search_term_list = list( set(trends_search_term_list) - set(tweets_search_term_list) )
+    print( f"Search Terms - Trends: {len(trends_search_term_list)}, Tweets {len(tweets_search_term_list)}, Add: {len(add_search_term_list)}" )        
+    
+    #DEBUG *******************************************************************************************
+    # return add_search_term_list
+    #DEBUG *******************************************************************************************
+
+    # Loop through each search term and perform
+    # a search for tweets associated with that term
+    tweet_list = []
+    search_term_count = 0
+    
+    for s in add_search_term_list:
+        
+        # Check the rate limits to see if there's enough left to make a search
+        try:
+            retval = api_rate_limits()
+            searches_remaining = retval['search']['/search/tweets']['remaining']
+    
+        except:
+            # Most likely hit rate limits -- break out of the loop and process what we have so far
+            print("POSSIBLE RATE LIMITS: search tweets 'remaining' not populated in API results")
+            break
+            
+        # If searches remaining are too low -- break out of the loop and process what we have so far
+        if searches_remaining < 10:
+            print("RATE LIMITS: Too close to rate limits to perform additional searches")
+            break
+                
+        # Get Tweets for this Twitter search term
+        tweets_for_this_search_term = search_for_tweets(s)
+        print(f"Search Term '{s}' => Tweet Count: {len(tweets_for_this_search_term)}")
+        
+        # Build a list of Tweets
+        tweet_list.extend( tweets_for_this_search_term )
+        
+        search_term_count += 1
+        
+        # DEBUG *******************************************************************************
+        # if search_term_count > 10:
+        #    break
+        # DEBUG *******************************************************************************
+    
+    print(f"OVERALL => Tweet Count: {len(tweet_list)}, API Search Calls: {search_term_count}")
+    
+    # Return the tweet_list
+    return tweet_list
+
+
+def update_db_tweets_table(a_tweet_list):
+# Update the tweets table by adding tweets for each
+# twitter search term in the 'trends' table
+#
+# Arguments:
+#    a_tweet_list: A list of tweets generated by get_tweet_list()
+#                  to be added to the 'tweets' table
+       
+    print(f"Tweets to add to the 'tweets' table: {len(a_tweet_list)}")
+    
+#     try:
+#         # Create a DataFrame
+#         tweet_df = pd.DataFrame.from_dict(tweet_list)
+
+#         # Append tweets the 'trends' database table
+#         tweet_df.to_sql( 'tweets', con=db.engine, if_exists='append', index=False)
+#         db.session.commit()
+
+#         # Increment the count
+#         print(f"Wrote {len(tweet_list)} tweets to the 'Tweets' table")
+        
+#     except:
+#         print(f">> Error occurred while attempting to  write tweets data")
+        
+    # Return the total number of entries in the Locations table
+    num_tweets_start = db.session.query(Tweet).count()
+
+    # Loop through all tweet entries
+    n_adds = 0
+    n_error_adds = 0
+    n_updates = 0
+    n_error_updates = 0
+    for t in a_tweet_list:
+        
+        # Search for this tweet in the 'tweets' table -- just in case it's there
+        result = db.session.query(Tweet).filter( Tweet.tweet_id_str == t['tweet_id_str'] ).first()
+
+        if result is None:
+            # This tweet is not in the table, so add this entrry to the 'tweets' table.
+            # NOTE: 
+            # Tweet is the Class mapped to the 'tweet' table
+            # t is a dictionary containing all of the column values for this row as key/value pairs
+            # The term "**t" creates a "key=value" parameter for each key/value pair
+            try:
+                db.session.add( Tweet(**t) )
+                db.session.commit()
+                n_adds += 1
+                print(f">>> ADDED: Record to 'tweets': Search Term '{t['tweet_search_term']}' => Tweet ID: '{t['tweet_id_str']}'")
+                
+            except:
+                n_error_adds += 1
+                print(f">>> ADD: Error while attempting to add record to 'tweets': Search Term '{t['tweet_search_term']}' => Tweet ID: '{t['tweet_id_str']}'")
+                db.session.rollback()
+            
+        else:
+            # DEBUG *************************************************************************************
+            # print(result)
+            # DEBUG *************************************************************************************
+            
+            # This tweet is in the table, so update this entry in the 'tweets' table.            
+            try:
+                db.session.query(Tweet).filter( Tweet.tweet_id_str == t['tweet_id_str'] ).update( t )
+                db.session.commit()
+                n_updates += 1
+                print(f">>> UPDATED: Record in 'tweets': Search Term '{t['tweet_search_term']}' => Tweet ID: '{t['tweet_id_str']}'")
+                
+            except:
+                n_error_updates += 1
+                print(f">>> UPDATE: Error while attempting to add record to 'tweets': Search Term '{t['tweet_search_term']}' => Tweet ID: '{t['tweet_id_str']}'")
+                db.session.rollback()
+                
+    # Return the total number of entries in the Locations table
+    num_tweets_finish = db.session.query(Tweet).count()
+    
+    print(f"COMPLETE: ADDS: [{n_adds} success, {n_error_adds} error], UPDATES: [{n_updates} success, {n_error_updates}] error => 'tweets' table rows: {num_tweets_start}->{num_tweets_finish}")
+    
+    retval = {
+        'n_tweet_list_input': len(a_tweet_list),
+        'n_tweet_table_entries_start': num_tweets_start,
+        'n_tweet_table_entries_finish': num_tweets_finish,
+        
+        'n_adds': n_adds,
+        'n_error_adds': n_error_adds,
+        'n_updates': n_updates,
+        'n_error_updates': n_error_updates
+    }
+    
+    # Return the counts of add/update actions
+    return retval
+
+
