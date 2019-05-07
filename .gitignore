@@ -2,4 +2,4 @@ python/static/js/MapWeb.js
 **/api_config.py
 **/__pycache__/
 *.pyc
-python/data/twitter_trends.db
+**/twitter_trends.db
