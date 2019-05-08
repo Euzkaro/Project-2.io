@@ -76,6 +76,10 @@ from .db_management import (
 def home():
     return render_template("index.html")
 
+@app.route("/demographics")
+def demographics():
+    return render_template("q4.html")
+
 #********************************************************************************
 # Return information relevant to update
 # of the 'locations' and 'trends' database tables
