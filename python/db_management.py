@@ -26,6 +26,10 @@ from requests.utils import quote
 
 from pprint import pprint
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.expression import func, and_, or_
+from sqlalchemy.sql.functions import coalesce
+
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
 from .app import db, app
