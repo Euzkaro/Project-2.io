@@ -100,6 +100,9 @@ def update_info():
     # Count the number of total trends in the 'trends' table
     n_trends = db.session.query(Trend).count()
 
+    # Count the number of total trends in the 'tweets' table
+    n_tweets = db.session.query(Tweet).count()
+
     # Provide the average number of Twitter Trends provided per location
     # Use try/except to catch divide by zero
     try:
@@ -114,7 +117,8 @@ def update_info():
         'api_time_before_reset_available': api_time_before_reset_available,
         'n_locations': n_locations,
         'n_trends': n_trends,
-        'n_trends_per_location_avg' : n_trends_per_location_avg
+        'n_trends_per_location_avg' : n_trends_per_location_avg,
+        'n_trends': n_tweets
     }
 
     return jsonify(api_info)
