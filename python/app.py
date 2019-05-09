@@ -103,12 +103,21 @@ search_input_global = ""
 def home():
     return render_template("index.html")
 
+#********************************************************************************
+# Demographics page
+@app.route("/demographics")
+def demographics_page():
+    return render_template("q4.html")
+
+#********************************************************************************
+# Sentimental Analysis route
 @app.route("/<search_input>", methods=['POST', 'GET'])
 def search_post():
     search_input = request.form['search']
     search_input_global = search_input
     print(f"####################\n{search_input}\n##################")
     return render_template("index.html")
+
 
 #********************************************************************************
 # Return information relevant to update
