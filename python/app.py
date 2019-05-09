@@ -118,7 +118,7 @@ def update_info():
         'n_locations': n_locations,
         'n_trends': n_trends,
         'n_trends_per_location_avg' : n_trends_per_location_avg,
-        'n_trends': n_tweets
+        'n_tweets': n_tweets
     }
 
     return jsonify(api_info)
