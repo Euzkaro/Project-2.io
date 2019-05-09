@@ -76,7 +76,7 @@ try:
 
 except TweepError:
     print("Authentication error: Problem authenticating Twitter API using Tweepy (TweepError)")
-
+    
 # # Function Definitions: Twitter API Rate Limit Management
 
 def api_rate_limits():
@@ -126,7 +126,12 @@ def api_calls_remaining( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
+    try:
+        rate_limits = api.rate_limit_status()
+        
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
@@ -154,11 +159,14 @@ def api_time_before_reset( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
-    
+    try:
+        rate_limits = api.rate_limit_status()
+                
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
-    
     
     # Return the reset time for the
     # requested type of trends query (or "" if not a valid type)
