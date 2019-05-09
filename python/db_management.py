@@ -52,15 +52,19 @@ except KeyError:
 
     # If the api_config file is not available, then all we can do is flag an error
     except ImportError:
-        print("Error: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
+        print("Import Keys: At least one of the API Keys has not been populated on Heroku, and api_config not available!")
 
 # Setup Tweepy API Authentication to access Twitter
 import tweepy
 
-auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
-auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
-api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
+try:
+    auth = tweepy.OAuthHandler(key_twitter_tweetquestor_consumer_api_key, key_twitter_tweetquestor_consumer_api_secret_key)
+    auth.set_access_token(key_twitter_tweetquestor_access_token, key_twitter_tweetquestor_access_secret_token)
+    api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
+except TweepError:
+    print("Authentication error: Problem authenticating Twitter API using Tweepy (TweepError)")
+    
 # # Function Definitions: Twitter API Rate Limit Management
 
 def api_calls_remaining( a_type = "place"):
@@ -74,7 +78,12 @@ def api_calls_remaining( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
+    try:
+        rate_limits = api.rate_limit_status()
+        
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
@@ -102,11 +111,14 @@ def api_time_before_reset( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
-    
+    try:
+        rate_limits = api.rate_limit_status()
+                
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
-    
     
     # Return the reset time for the
     # requested type of trends query (or "" if not a valid type)
@@ -155,9 +167,9 @@ def get_loc_with_trends_available_to_df( ):
     try:
         trends_avail = api.trends_available()
         
-    except TweepError as e:
-        # No top trends info available for this WOEID, return False
-        print(f"Error obtaining top trends for WOEID {a_woeid}: ", e)
+    except:
+        # No locations info available, return False
+        print(f"Tweepy API: Problem getting locations that have trends available information")
         return False
     
     # Import trend availability info into a dataframe
@@ -205,7 +217,7 @@ def get_location_info( a_woeid ):
         response = requests.get(url=flickr_api_url)
         
     except requests.exceptions.RequestException as e:
-        print("Error obtaining location information for WOEID {a_woeid}: ", e)
+        print(f"Flickr API: Problem getting location information for WOEID {a_woeid}: ")
         return False
     
     # Parse the json
@@ -213,7 +225,7 @@ def get_location_info( a_woeid ):
     
     # Check for failure to locate the information
     if (location_data['stat'] == 'fail'):
-        print(f"Error finding location WOEID {a_woeid}: {location_data['message']}")
+        print(f"Flickr API: Problem finding location WOEID {a_woeid}: {location_data['message']}")
         
         
     #pprint(location_data)
@@ -348,9 +360,9 @@ def get_trends_for_loc( a_woeid ):
     try:
         top_trends = api.trends_place( a_woeid )[0]
         
-    except TweepError as e:
+    except:
         # No top trends info available for this WOEID, return False
-        print(f"Error obtaining top trends for WOEID {a_woeid}: ", e)
+        print(f"Tweepy API: Problem getting trends information for WOEID {a_woeid}")
         return False
     
     #pprint(top_trends)
