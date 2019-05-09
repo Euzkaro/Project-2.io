@@ -765,7 +765,11 @@ def get_search_terms_from_trends(a_date_range=None):
     
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'trends' table for the specified date range
-    results = db.session.query(Trend.twitter_tweet_name)                 .filter( and_(                         func.date(Trend.updated_at) >= q_start_date,                         func.date(Trend.updated_at) <= q_end_date                        ))                 .order_by( Trend.twitter_tweet_name ).all()
+    results = db.session.query(Trend.twitter_tweet_name) \
+                        .filter( and_( \
+                            func.date(Trend.updated_at) >= q_start_date, \
+                            func.date(Trend.updated_at) <= q_end_date )) \
+                        .order_by( Trend.twitter_tweet_name ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value
@@ -800,7 +804,11 @@ def get_search_terms_from_tweets(a_date_range=None):
     
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'tweets' table for the specified date range
-    results = db.session.query(Tweet.tweet_search_term)                 .filter( and_(                         func.date(Tweet.updated_at) >= q_start_date,                         func.date(Tweet.updated_at) <= q_end_date                        ))                 .order_by( Tweet.tweet_search_term ).all()
+    results = db.session.query(Tweet.tweet_search_term) \
+                        .filter( and_( \
+                            func.date(Tweet.updated_at) >= q_start_date, \
+                            func.date(Tweet.updated_at) <= q_end_date )) \
+                        .order_by( Tweet.tweet_search_term ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value
