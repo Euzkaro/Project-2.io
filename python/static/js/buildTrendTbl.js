@@ -84,8 +84,33 @@ function buildLocTable(woeid = 23424977) {
       // e.target is the clicked element!
       console.log("Trend Row", e.target.id, " was clicked!");
 
+    // Kamil and Eugenio: 
+    // ENTER CALLS TO REFRESH PLOTLY AND SENTIMENT ANALYSIS HERE
+    // pass parameter e.target.id to function - that's the tweet 
+
+      // Transition selected row to gray then revert to indicate click
+      transition(this) 
+            
+      function transition(target){
+          d3.select(target)
+            .transition()
+            .duration(100)
+            .style("background", "#EBEDEF")
+            .style("font-weight", "bolder")
+
+          d3.select(target)
+            .transition()
+            .delay(100)
+            .duration(100)
+            .style("background", "white")
+            .style("font-weight", "bold");
+
+          console.log("in transition function", target) ;
+      };
+
       //get locations with this tweet trending to update map markers
       console.log(e.target.id) ;
+      
       getTweetLocations(e.target.id)
 
   });
