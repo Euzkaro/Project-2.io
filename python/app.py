@@ -12,6 +12,28 @@ from flask import Flask, render_template, jsonify, request, redirect
 # when deployed on Heroku
 from flask_cors import CORS
 
+#Dependencies for Sentiment Anaysis
+import tweepy, re #,csv,re,sys
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+# Using plotly + cufflinks in offline mode
+import cufflinks as cf
+import logging
+
+#### Logger
+logger = logging.getLogger('myasentiment_analysis')
+hdlr = logging.FileHandler('myapp.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr) 
+logger.setLevel(logging.INFO)
+
+logger.info('While this is just chatty')
+
 #################################################
 # Flask Setup
 #################################################
@@ -68,13 +90,34 @@ from .db_management import (
     parse_date_range,
     get_tweet_list, update_db_tweets_table
     )
+from .sentiment_analysis import SentimentAnalysis
+
+#### Global Vars
+search_input_global = ""
+
 
 #********************************************************************************
 # Default route - display the main page
-# NOTE: Flask expects rendered templates to be in the ./templates folder
+# Note: Flask expects rendered templates to be in the ./templates folder
 @app.route("/")
 def home():
     return render_template("index.html")
+
+#********************************************************************************
+# Demographics page
+@app.route("/demographics")
+def demographics_page():
+    return render_template("q4.html")
+
+#********************************************************************************
+# Sentimental Analysis route
+@app.route("/<search_input>", methods=['POST', 'GET'])
+def search_post():
+    search_input = request.form['search']
+    search_input_global = search_input
+    print(f"####################\n{search_input}\n##################")
+    return render_template("index.html")
+
 
 #********************************************************************************
 # Return information relevant to update
@@ -183,25 +226,25 @@ def update_tweets_table():
 def get_tweets_for_search_term(a_search_term):
     if a_search_term is None:
         return jsonify([{"ERROR":"ERROR"}])
-    
+
     # Query to obtain all tweets in the 'tweets' table for the specified search term
     results = db.session.query(Tweet) \
                         .filter(Tweet.tweet_search_term == a_search_term ) \
                         .order_by( Tweet.tweet_created_at.desc() ) \
                         .all()
-    
+
     tweet_list = []
 
     for r in results:
         tweet_info = {
             'id': r.id,
             'updated_at' : r.updated_at,
-            
+
             'tweet_id' : r.tweet_id ,
             'tweet_id_str' : r.tweet_id_str,
             'tweet_search_term' : r.tweet_search_term,
             'tweet_created_at' : r.tweet_created_at,
-        
+
             'tweet_is_a_quote_flag' : r.tweet_is_a_quote_flag,
             'tweet_is_a_retweet_flag' : r.tweet_is_a_retweet_flag,
 
@@ -209,11 +252,11 @@ def get_tweets_for_search_term(a_search_term):
             'tweet_entities_user_mentions_count' : r.tweet_entities_user_mentions_count,
             'tweet_favorite_counts' : r.tweet_favorite_counts,
             'tweet_retweet_counts' : r.tweet_retweet_counts,
-            
+
             'tweet_lang' : r.tweet_lang,
             'tweet_source': r.tweet_source,
             'tweet_text' : r.tweet_text,
-            
+
             'tweet_user_id' : r.tweet_user_id,
             'tweet_user_id_str' : r.tweet_user_id_str ,
             'tweet_user_created_at' : r.tweet_user_created_at,
@@ -231,8 +274,7 @@ def get_tweets_for_search_term(a_search_term):
         tweet_list.append(tweet_info)
 
     return jsonify(tweet_list)
-
-
+    
 #********************************************************************************
 # Return a list of all locations with Twitter Top Trend info
 @app.route("/locations")
@@ -910,7 +952,24 @@ def get_interval_top_trends_for_location(a_date_range, a_woeid):
         trend_list.append(trend_info)
 
     return jsonify(trend_list)
+
+#********************************************************************************
+# Return Sentiment Analysis 
+@app.route("/sentiment/<search_input_global>")
+def sentiment_input():
+    logger.info("Are we here?")
+    if search_input_global != "":
+        sa = SentimentAnalysis()
+        sa.DownloadData(search_input_global)
+        sa_list = [{'Status': 'We are OK'}]
+        logger.info(str(sa_list))
+        #return jsonify(sa_list)
+    #else:
+       # return redirect("/", code=200)
     
+#********************************************************************************
+
+
 
 if __name__ == "__main__":
     app.run()
