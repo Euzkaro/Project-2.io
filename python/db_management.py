@@ -76,7 +76,7 @@ try:
 
 except TweepError:
     print("Authentication error: Problem authenticating Twitter API using Tweepy (TweepError)")
-
+    
 # # Function Definitions: Twitter API Rate Limit Management
 
 def api_rate_limits():
@@ -126,7 +126,12 @@ def api_calls_remaining( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
+    try:
+        rate_limits = api.rate_limit_status()
+        
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
@@ -154,11 +159,14 @@ def api_time_before_reset( a_type = "place"):
 # 
 
     # Get Twitter rate limit information using the Tweepy API
-    rate_limits = api.rate_limit_status()
-    
+    try:
+        rate_limits = api.rate_limit_status()
+                
+    except:
+        print("Tweepy API: Problem getting Twitter rate limits information using tweepy")
+
     # Focus on the rate limits for trends calls
     trends_limits = rate_limits['resources']['trends']
-    
     
     # Return the reset time for the
     # requested type of trends query (or "" if not a valid type)
@@ -776,10 +784,10 @@ def get_search_terms_from_trends(a_date_range=None):
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'trends' table for the specified date range
     results = db.session.query(Trend.twitter_tweet_name) \
-                            .filter( and_( \
-                                func.date(Trend.updated_at) >= q_start_date, \
-                                func.date(Trend.updated_at) <= q_end_date)) \
-                            .order_by( Trend.twitter_tweet_name ).all()
+                        .filter( and_( \
+                            func.date(Trend.updated_at) >= q_start_date, \
+                            func.date(Trend.updated_at) <= q_end_date )) \
+                        .order_by( Trend.twitter_tweet_name ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value
@@ -815,10 +823,10 @@ def get_search_terms_from_tweets(a_date_range=None):
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'tweets' table for the specified date range
     results = db.session.query(Tweet.tweet_search_term) \
-                            .filter( and_( \
-                                func.date(Tweet.updated_at) >= q_start_date, \
-                                func.date(Tweet.updated_at) <= q_end_date)) \
-                            .order_by( Tweet.tweet_search_term ).all()
+                        .filter( and_( \
+                            func.date(Tweet.updated_at) >= q_start_date, \
+                            func.date(Tweet.updated_at) <= q_end_date )) \
+                        .order_by( Tweet.tweet_search_term ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value

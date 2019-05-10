@@ -4,7 +4,6 @@
 # @Date 5/1/19
 # @File app.py
 
-
 # import necessary libraries
 import os
 from flask import Flask, render_template, jsonify, request, redirect
@@ -68,11 +67,11 @@ try:
     # If the login and password is populated
     if (postgres_geotweetapp_login is not None) and (postgres_geotweetapp_password is not None):
         db_path_flask_app = f"postgresql://{postgres_geotweetapp_login}:{postgres_geotweetapp_password}@localhost/twitter_trends"
-        print("Note: PostgreSQL database login/password is populated")
+        print("Note: Local PostgreSQL database login/password is populated")
 
 # If the api_config file is not available, then all we can do is flag an error
 except ImportError:
-    print("Note: PostgreSQL database login/password is *not* populated")
+    print("Note: Local PostgreSQL database login/password is *not* populated")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or db_path_flask_app
 
@@ -143,6 +142,9 @@ def update_info():
     # Count the number of total trends in the 'trends' table
     n_trends = db.session.query(Trend).count()
 
+    # Count the number of total trends in the 'tweets' table
+    n_tweets = db.session.query(Tweet).count()
+
     # Provide the average number of Twitter Trends provided per location
     # Use try/except to catch divide by zero
     try:
@@ -157,7 +159,8 @@ def update_info():
         'api_time_before_reset_available': api_time_before_reset_available,
         'n_locations': n_locations,
         'n_trends': n_trends,
-        'n_trends_per_location_avg' : n_trends_per_location_avg
+        'n_trends_per_location_avg' : n_trends_per_location_avg,
+        'n_tweets': n_tweets
     }
 
     return jsonify(api_info)
