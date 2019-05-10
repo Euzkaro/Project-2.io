@@ -18,7 +18,7 @@ class SentimentAnalysis:
     def get_search_term(self) -> str:
         return self.searchTerm
 
-    def DownloadData(self):
+    def DownloadData(self, a_search_input):
         # authenticating
         consumerKey = 't6gxzqwZTX6S3BnXYM3YGqriA'
         consumerSecret = '6ByaQVf9ljEQHWwrfQbkyG674dhu0TQeJh8VrGqzrrBLaDZc94'
@@ -28,12 +28,14 @@ class SentimentAnalysis:
         auth.set_access_token(accessToken, accessTokenSecret)
         api = tweepy.API(auth)
 
+        search_input_global = a_search_input
+
         # input for term to be searched and how many tweets to search
         self.searchTerm = search_input_global #input("Enter Keyword/Hashtag to search about: ")
         #NoOfTerms = int(input("Number of tweets to analyze: "))
         NoOfTerms = 1000
         # searching for tweets
-        self.tweets = tweepy.Cursor(api.search, q=searchTerm, lang = "en").items(NoOfTerms)
+        self.tweets = tweepy.Cursor(api.search, q=self.searchTerm, lang = "en").items(NoOfTerms)
 
         # Open/create a file to append data to
         #csvFile = open('result.csv', 'a')
@@ -120,7 +122,7 @@ class SentimentAnalysis:
         # print(str(snegative) + "% people have a strongly negative reaction")
         
 
-        self.plotPieChart(spositive, positive, wpositive, neutral, wnegative, negative, snegative, searchTerm, NoOfTerms)
+        self.plotPieChart(spositive, positive, wpositive, neutral, wnegative, negative, snegative, self.searchTerm, NoOfTerms)
 
 
     def cleanTweet(self, tweet):
