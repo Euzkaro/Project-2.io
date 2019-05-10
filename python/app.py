@@ -956,16 +956,20 @@ def get_interval_top_trends_for_location(a_date_range, a_woeid):
 #********************************************************************************
 # Return Sentiment Analysis 
 @app.route("/sentiment/<search_input_global>")
-def sentiment_input():
-    logger.info("Are we here?")
+def sentiment_input(search_input_global):
+    logger.info("Entering @app.route('/sentiment/<search_input_global>') function sentiment_input():")
+    logger.info(f"search_input_global = '{search_input_global}'")
     if search_input_global != "":
+        logger.info(f"Performing Sentiment Analysis on: '{search_input_global}'")
         sa = SentimentAnalysis()
         sa.DownloadData(search_input_global)
         sa_list = [{'Status': 'We are OK'}]
         logger.info(str(sa_list))
+
         #return jsonify(sa_list)
     #else:
-       # return redirect("/", code=200)
+    # return redirect("index.html", code=200)
+    return render_template("index.html")
     
 #********************************************************************************
 

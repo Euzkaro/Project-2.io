@@ -70,7 +70,7 @@ function createAllDemographicsCharts(a_state_list) {
         // Display the demographics charts
         createDemographicsChart(data_list, "Republican", "HighSchool", a_state_list, 0);
         createDemographicsChart(data_list, "Republican", "Unemployment", a_state_list, 1);
-        createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2);
+        // createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2);
     });
 }
 
