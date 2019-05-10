@@ -26,6 +26,10 @@ from requests.utils import quote
 
 from pprint import pprint
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.expression import func, and_, or_
+from sqlalchemy.sql.functions import coalesce
+
 # Import a pointer to the Flask-SQLAlchemy database session
 # created in the main app.py file
 from .app import db, app
@@ -684,9 +688,12 @@ def search_for_tweets( a_search_term ):
         tweet_info = dict(common_info)
 
         # Info about this Tweet (i.e., "Status")
+        # UPDATE: Force both 'tweet_id' and 'tweet_user_id' to be 0
+        # to avoid possible integer range error in database
+        # NOTE: The string representations are used, not the integer
         try:            
             tweet_info.update( {                
-                'tweet_id': t['id'],
+                'tweet_id': 0,
                 'tweet_id_str': t['id_str'],
                 'tweet_created_at': t['created_at'],
                 'tweet_text': t['text'],
@@ -718,9 +725,12 @@ def search_for_tweets( a_search_term ):
             print(f"Tweepy API Error: Problem getting tweet-related info")
         
         # User who created this Tweet
+        # UPDATE: Force both 'tweet_id' and 'tweet_user_id' to be 0
+        # to avoid possible integer range error in database
+        # NOTE: The string representations are used, not the integer
         try:
             tweet_info.update( {                
-                'tweet_user_id': t['user']['id'],
+                'tweet_user_id': 0,
                 'tweet_user_id_str': t['user']['id_str'],
                 'tweet_user_created_at': t['user']['created_at'],
                 'tweet_user_name': t['user']['name'],
@@ -765,7 +775,11 @@ def get_search_terms_from_trends(a_date_range=None):
     
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'trends' table for the specified date range
-    results = db.session.query(Trend.twitter_tweet_name)                 .filter( and_(                         func.date(Trend.updated_at) >= q_start_date,                         func.date(Trend.updated_at) <= q_end_date                        ))                 .order_by( Trend.twitter_tweet_name ).all()
+    results = db.session.query(Trend.twitter_tweet_name) \
+                            .filter( and_( \
+                                func.date(Trend.updated_at) >= q_start_date, \
+                                func.date(Trend.updated_at) <= q_end_date)) \
+                            .order_by( Trend.twitter_tweet_name ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value
@@ -800,7 +814,11 @@ def get_search_terms_from_tweets(a_date_range=None):
     
     # Query to get the search_terms (i.e., 'twitter_tweet_name')
     # from the 'tweets' table for the specified date range
-    results = db.session.query(Tweet.tweet_search_term)                 .filter( and_(                         func.date(Tweet.updated_at) >= q_start_date,                         func.date(Tweet.updated_at) <= q_end_date                        ))                 .order_by( Tweet.tweet_search_term ).all()
+    results = db.session.query(Tweet.tweet_search_term) \
+                            .filter( and_( \
+                                func.date(Tweet.updated_at) >= q_start_date, \
+                                func.date(Tweet.updated_at) <= q_end_date)) \
+                            .order_by( Tweet.tweet_search_term ).all()
 
     # Get the list of unique search terms using set()
     # Note: The results list is a list of tuples, with first tuple being the desired value
@@ -892,21 +910,7 @@ def update_db_tweets_table(a_tweet_list):
 #                  to be added to the 'tweets' table
        
     print(f"Tweets to add to the 'tweets' table: {len(a_tweet_list)}")
-    
-#     try:
-#         # Create a DataFrame
-#         tweet_df = pd.DataFrame.from_dict(tweet_list)
-
-#         # Append tweets the 'trends' database table
-#         tweet_df.to_sql( 'tweets', con=db.engine, if_exists='append', index=False)
-#         db.session.commit()
-
-#         # Increment the count
-#         print(f"Wrote {len(tweet_list)} tweets to the 'Tweets' table")
-        
-#     except:
-#         print(f">> Error occurred while attempting to  write tweets data")
-        
+       
     # Return the total number of entries in the Locations table
     num_tweets_start = db.session.query(Tweet).count()
 
@@ -916,7 +920,13 @@ def update_db_tweets_table(a_tweet_list):
     n_updates = 0
     n_error_updates = 0
     for t in a_tweet_list:
-        
+
+        # Force integer representations of these ids to be 0
+        # to avoid integer range errors in database
+        # NOTE: String representations of both IDs are in different fields
+        t['tweet_id'] = 0
+        t['tweet_user_id'] = 0
+
         # Search for this tweet in the 'tweets' table -- just in case it's there
         result = db.session.query(Tweet).filter( Tweet.tweet_id_str == t['tweet_id_str'] ).first()
 
