@@ -143,8 +143,9 @@ class SentimentAnalysis:
         sizes = [spositive, positive, wpositive, neutral, wnegative, negative, snegative]
         colors = ['darkgreen','yellowgreen','lightgreen','gold', 'lightsalmon','red','darkred']
         trace = go.Pie(labels=labels,
-                       values=values, 
+                       values=values,
+                       hole= 0.5,
                        marker=dict(colors=colors,
-                                  line=dict(color='#FFFFFF', width=5)))
+                                  line=dict(color='#FFFFFF', width=4)))
         py.iplot([trace], filename='sentiment_pie_chart')
         
