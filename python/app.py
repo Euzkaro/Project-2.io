@@ -110,16 +110,6 @@ def demographics_page():
     return render_template("q4.html")
 
 #********************************************************************************
-# Sentimental Analysis route
-@app.route("/<search_input>", methods=['POST', 'GET'])
-def search_post():
-    search_input = request.form['search']
-    search_input_global = search_input
-    print(f"####################\n{search_input}\n##################")
-    return render_template("index.html")
-
-
-#********************************************************************************
 # Return information relevant to update
 # of the 'locations' and 'trends' database tables
 @app.route("/update")
@@ -954,15 +944,33 @@ def get_interval_top_trends_for_location(a_date_range, a_woeid):
     return jsonify(trend_list)
 
 #********************************************************************************
+# Sentimental Analysis route
+# @app.route("/<search_input>", methods=['POST', 'GET'])
+# def search_post(search_input):
+#     logger.info("Entering @app.route('/<search_input>') function search_post():")
+#     logger.info(f"search_input = '{search_input}'")
+
+#     search_input = request.form['search']
+#     search_input_global = search_input
+#     print(f"####################\n{search_input}\n##################")
+#     return render_template("index.html")
+
+
+
+#********************************************************************************
 # Return Sentiment Analysis 
-@app.route("/sentiment/<search_input_global>")
-def sentiment_input(search_input_global):
-    logger.info("Entering @app.route('/sentiment/<search_input_global>') function sentiment_input():")
-    logger.info(f"search_input_global = '{search_input_global}'")
-    if search_input_global != "":
-        logger.info(f"Performing Sentiment Analysis on: '{search_input_global}'")
+@app.route("/sentiment", methods=['POST'])
+def sentiment_input():
+    logger.info("Entering @app.route('/sentiment') function sentiment_input():")
+
+    # Get the search term from the form
+    search_input = request.form['search_input']
+
+    logger.info(f"search_input = '{search_input}'")
+    if search_input != "":
+        logger.info(f"Performing Sentiment Analysis on: '{search_input}'")
         sa = SentimentAnalysis()
-        sa.DownloadData(search_input_global)
+        sa.DownloadData(search_input)
         sa_list = [{'Status': 'We are OK'}]
         logger.info(str(sa_list))
 

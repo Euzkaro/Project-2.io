@@ -4,7 +4,7 @@
 <!--Head and MetaData-->
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8"/>
     <title>GeoTweet</title>
 
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
@@ -117,55 +117,44 @@
     </div>
 
     <div class=row>
-        <div class="col-xs-4">
-
-            <!--########################################################################-->
-            <!-- SENTIMENT ANALYSIS CHART -->
-            <!--########################################################################-->
-            <!--div>
-            <form class="search">
-                    <input type="text" placeholder="Try a Keyword/Hashtag!" name="search">
-                    <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-            <iframe width="600" height="500" frameborder="1" scrolling="no" src="https://plot.ly/~Euzkaro/6/?share_key=0n7cJu7qG1PAZUOzPFGdNP#/"></iframe>
-            </div-->   
+        <div class="col-xs-6">
 
             <!--########################################################################-->
             <!-- DEMOGRAPHICS CHART 0 -->
             <!--########################################################################-->
 
-            <div class="card card-title demographics_title">Demographics 0</div>
+            <div class="card card-title demographics_title">Related Demographics</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_0"></div>
             </div>
         </div>
 
-        <div class="col-xs-4">
+        <!-- <div class="col-xs-4"> -->
 
             <!--########################################################################-->
             <!-- DEMOGRAPHICS CHART 1 -->
             <!--########################################################################-->
 
-            <div class="card card-title demographics_title">Demographics 1</div>
+            <!-- <div class="card card-title demographics_title">Demographics 1</div>
             <hr>
             <div class="card card-body">
                 <div id="demo_chart_1"></div>
             </div>
-        </div>
+        </div> -->
 
-        <div class="col-xs-4">
+        <div class="col-xs-6">
 
             <!--########################################################################-->
-            <!-- DEMOGRAPHICS CHART 2 -->
+            <!-- SENTIMENT ANALYSIS CHART -->
             <!--########################################################################-->
 
             <div class="card card-title demographics_title">Sentiment Analysis</div>
             <hr>
             <div class="card card-body">
                     <div>
-                            <form class="search">
-                                    <input type="text" placeholder="Try a Keyword/Hashtag!" name="search">
+                            <form class="search" action="/sentiment" method="post">
+                                    <input type="text" placeholder="Try a Keyword/Hashtag!" name="search_input">
                                     <button type="submit"><i class="fa fa-search"></i></button>
                             </form>
                             <iframe width="600" height="500" frameborder="0" scrolling="no" src="https://plot.ly/~Euzkaro/6/?share_key=0n7cJu7qG1PAZUOzPFGdNP#/"></iframe>
@@ -209,9 +198,7 @@
     <!-- <script type="text/javascript" src="./static/data/statesData.js"></script> -->
     <!-- <script type="text/javascript" src="../static/js/locationSampleData.js"></script> -->
 
-    <!-- Function to perform linear regression on a dataset
-         Source: https://github.com/Tom-Alexander/regression-js
-    -->
+    <!-- Function to perform linear regression on a dataset -->
     <script type="text/javascript" src="../static/js/regression.min.js"></script>
     <script type="text/javascript" src="../static/js/main-map.js"></script>
 
