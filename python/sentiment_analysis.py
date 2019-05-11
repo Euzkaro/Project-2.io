@@ -8,6 +8,9 @@ from plotly.offline import iplot, init_notebook_mode
 # Using plotly + cufflinks in offline mode
 import cufflinks as cf
 
+# Use the 'quote' function to encode search terms before API calls
+# from requests.utils import quote
+
 class SentimentAnalysis:
 
     def __init__(self):
@@ -18,7 +21,9 @@ class SentimentAnalysis:
     def get_search_term(self) -> str:
         return self.searchTerm
 
-    def DownloadData(self):
+    def DownloadData(self, a_search_input):
+        print(f"Entering DownloadData(self, a_search_input = '{a_search_input}'):")
+
         # authenticating
         consumerKey = 't6gxzqwZTX6S3BnXYM3YGqriA'
         consumerSecret = '6ByaQVf9ljEQHWwrfQbkyG674dhu0TQeJh8VrGqzrrBLaDZc94'
@@ -28,12 +33,25 @@ class SentimentAnalysis:
         auth.set_access_token(accessToken, accessTokenSecret)
         api = tweepy.API(auth)
 
+        search_input_global = a_search_input
+
         # input for term to be searched and how many tweets to search
         self.searchTerm = search_input_global #input("Enter Keyword/Hashtag to search about: ")
         #NoOfTerms = int(input("Number of tweets to analyze: "))
         NoOfTerms = 1000
+
         # searching for tweets
-        self.tweets = tweepy.Cursor(api.search, q=searchTerm, lang = "en").items(NoOfTerms)
+        # NOTE: Can hit Twitter Rate Limits, so be prepared...
+
+        try:
+            self.tweets = tweepy.Cursor(api.search, q=self.searchTerm, lang = "en").items(NoOfTerms)
+            print(f"API Search for self.searchTerm = '{self.searchTerm}': Successful")
+
+        except:
+            # If this failed, probably ran into Rate Limits error (429)
+            # so just fail gracefully, allowing the main page to render
+            print(f"API Search for self.searchTerm = '{self.searchTerm}': Failed - probably Rate Limits")
+            return
 
         # Open/create a file to append data to
         #csvFile = open('result.csv', 'a')
@@ -54,28 +72,36 @@ class SentimentAnalysis:
 
 
         # iterating through tweets fetched
-        for tweet in self.tweets:
-            #Append to temp so that we can store in csv later. Encode in UTF-8
-            self.tweetText.append(self.cleanTweet(tweet.text).encode('utf-8'))
-            analysis = TextBlob(tweet.text)
-            #print(analysis.sentiment)  # print tweet's polarity
-            polarity += analysis.sentiment.polarity  # adding up polarities to find the average
+        # This is the first use of the Twitter API Cursor,
+        # so be ready for a Rate Limit (or other) error
+        try:
+            for tweet in self.tweets:
+                #Append to temp so that we can store in csv later. Encode in UTF-8
+                self.tweetText.append(self.cleanTweet(tweet.text).encode('utf-8'))
+                analysis = TextBlob(tweet.text)
+                #print(analysis.sentiment)  # print tweet's polarity
+                polarity += analysis.sentiment.polarity  # adding up polarities to find the average
 
-            if (analysis.sentiment.polarity == 0):  # adding how people are reacting to find average sentiment
-                neutral += 1
-            elif (analysis.sentiment.polarity > 0 and analysis.sentiment.polarity <= 0.3):
-                wpositive += 1
-            elif (analysis.sentiment.polarity > 0.3 and analysis.sentiment.polarity <= 0.6):
-                positive += 1
-            elif (analysis.sentiment.polarity > 0.6 and analysis.sentiment.polarity <= 1):
-                spositive += 1
-            elif (analysis.sentiment.polarity > -0.3 and analysis.sentiment.polarity <= 0):
-                wnegative += 1
-            elif (analysis.sentiment.polarity > -0.6 and analysis.sentiment.polarity <= -0.3):
-                negative += 1
-            elif (analysis.sentiment.polarity > -1 and analysis.sentiment.polarity <= -0.6):
-                snegative += 1
+                if (analysis.sentiment.polarity == 0):  # adding how people are reacting to find average sentiment
+                    neutral += 1
+                elif (analysis.sentiment.polarity > 0 and analysis.sentiment.polarity <= 0.3):
+                    wpositive += 1
+                elif (analysis.sentiment.polarity > 0.3 and analysis.sentiment.polarity <= 0.6):
+                    positive += 1
+                elif (analysis.sentiment.polarity > 0.6 and analysis.sentiment.polarity <= 1):
+                    spositive += 1
+                elif (analysis.sentiment.polarity > -0.3 and analysis.sentiment.polarity <= 0):
+                    wnegative += 1
+                elif (analysis.sentiment.polarity > -0.6 and analysis.sentiment.polarity <= -0.3):
+                    negative += 1
+                elif (analysis.sentiment.polarity > -1 and analysis.sentiment.polarity <= -0.6):
+                    snegative += 1
 
+        except:
+            # If this failed, probably ran into Rate Limits error (429)
+            # so just fail gracefully, allowing the main page to render
+            print(f"Looping through Twitter API Cursor for self.seachTerm = '{self.searchTerm}': Failed - probably Rate Limits")
+            return
 
         # finding average of how people are reacting
         positive = self.percentage(positive, NoOfTerms)
@@ -120,7 +146,7 @@ class SentimentAnalysis:
         # print(str(snegative) + "% people have a strongly negative reaction")
         
 
-        self.plotPieChart(spositive, positive, wpositive, neutral, wnegative, negative, snegative, searchTerm, NoOfTerms)
+        self.plotPieChart(spositive, positive, wpositive, neutral, wnegative, negative, snegative, self.searchTerm, NoOfTerms)
 
 
     def cleanTweet(self, tweet):
@@ -141,8 +167,9 @@ class SentimentAnalysis:
         sizes = [spositive, positive, wpositive, neutral, wnegative, negative, snegative]
         colors = ['darkgreen','yellowgreen','lightgreen','gold', 'lightsalmon','red','darkred']
         trace = go.Pie(labels=labels,
-                       values=values, 
+                       values=values,
+                       hole= 0.5,
                        marker=dict(colors=colors,
-                                  line=dict(color='#FFFFFF', width=5)))
+                                  line=dict(color='#FFFFFF', width=4)))
         py.iplot([trace], filename='sentiment_pie_chart')
         

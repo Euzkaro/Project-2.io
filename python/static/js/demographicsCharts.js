@@ -68,9 +68,11 @@ function createAllDemographicsCharts(a_state_list) {
         // console.log(data_list);
 
         // Display the demographics charts
-        createDemographicsChart(data_list, "Republican", "HighSchool", a_state_list, 0);
-        createDemographicsChart(data_list, "Republican", "Unemployment", a_state_list, 1);
-        createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2);
+
+        createDemographicsChart(data_list, "Democrat", "density", a_state_list, 0);
+        // createDemographicsChart(data_list, "Republican", "HighSchool", a_state_list, 0);
+        // createDemographicsChart(data_list, "Republican", "Unemployment", a_state_list, 1);
+        // createDemographicsChart(data_list, "Republican", "Population", a_state_list, 2);
     });
 }
 
@@ -150,7 +152,7 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
     // depending upon which field is used to drive an axis
     const plotConfig = {
         "Republican": { axis_label: "Republican (%)", scale_factor: 1.0, max_range: 100 },
-        "Democrat": { axis_label: "Democrat (%)", scale_factor: 1.0, max_range: 100 },
+        "Democrat": { axis_label: "Democrat (%)", scale_factor: 1.0, max_range: NaN },
         "Population": { axis_label: "Total Population", scale_factor: 1, max_range: NaN },
         "BachelorDegree": { axis_label: "Max. Education is Bachelors Degree (%)", scale_factor: 1.0, max_range: 100 },
         "HighSchool": { axis_label: "Max. Education is High School (%)", scale_factor: 1.0, max_range: 100 },
@@ -287,7 +289,7 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
                 color: 'blue',
                 opacity: 0.5,
                 width: 3,
-                dash: 'dot'
+                dash: '5 5'
             }
         };
 
@@ -302,8 +304,8 @@ function createDemographicsChart(a_data_list, a_x_value, a_y_value, a_state_list
         title: `${plotConfig[a_y_value]['axis_label']} vs. ${plotConfig[a_x_value]['axis_label']}`,
         showlegend: true,
         legend: {
-            "orientation": "h",
-            x: 0.1, y: -0.3
+            "orientation": "v",
+            x: 0.3, y: -0.5
         }
     };
 
